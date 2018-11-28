@@ -3,4 +3,4 @@ project(TheUltimateTree)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(TheUltimateTree main.cpp)
+add_executable(TheUltimateTree main.cpp Trie.h Node.h)

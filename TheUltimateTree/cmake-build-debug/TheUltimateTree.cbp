@@ -82,6 +82,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/vmai/Documents/Duc/private Documents/Abgabe2/TheUltimateTree/Node.h">
+			<Option target="TheUltimateTree"/>
+		</Unit>
+		<Unit filename="/Users/vmai/Documents/Duc/private Documents/Abgabe2/TheUltimateTree/Trie.h">
+			<Option target="TheUltimateTree"/>
+		</Unit>
 		<Unit filename="/Users/vmai/Documents/Duc/private Documents/Abgabe2/TheUltimateTree/main.cpp">
 			<Option target="TheUltimateTree"/>
 		</Unit>
