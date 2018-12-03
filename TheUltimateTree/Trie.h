@@ -1,29 +1,113 @@
 //
-// Created by Viet Duc Mai on 28.11.18.
+// Created by Viet Duc Mai on 03.12.18.
 //
 
 #ifndef THEULTIMATETREE_TRIE_H
 #define THEULTIMATETREE_TRIE_H
 
+#include <stdio.h>
+#include <string>
+#include <cstring>
+#include <list>
+
+using namespace std;
+class TrieIterator;
+class AbstractNode;
+class InnerNode;
+class Leaf;
 template <class T, class E=char>
 class Trie {
+private:
+    InnerNode *root;
+
 public:
+    /* Konstruktor von Trie */
+    Trie() {
+        root = InnerNode();
+    }
+    /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<const key_type, T> value_type;
     typedef T mapped_type;
-    // „...“ im folgenden typedef: keine C/C++ Ellipse, sondern von Ihnen
-    // - am besten als innere Klasse - zu entwickeln…
-    typedef ... iterator;
-    bool empty() const;
-    iterator insert(const value_type& value);
+    typedef TrieIterator iterator;
+    /* Methoden */
+    bool empty() const {
+        return this->root->isEmpty();
+    }
 
+    /* Iteratorabhänginge Methoden */
+    iterator insert(const value_type& value);
     void erase(const key_type& value);
     void clear(); // erase all
     iterator lower_bound(const key_type& testElement); // first element >= testElement
     iterator upper_bound(const key_type& testElement); // first element > testElement
     iterator find(const key_type& testElement); // first element == testElement
-    iterator begin(); // returns end() if not found
+
+    /* "returns end() if not found" */
+    iterator begin();
+
     iterator end();
+
+    /* Abstrakte Knotenklasse
+     * Innere Knoten und Blätter werden von dieser abgeleitet */
+    class AbstractNode {
+    private:
+        char letter;
+        AbstractNode parent;
+    public:
+        /* Konstruktoren */
+        AbstractNode() {
+            letter = "";
+            parent = nullptr;
+        }
+
+        AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
+
+        /* Virtual Methoden können von erbbaren Klassen überschrieben werden */
+        virtual char getValue() {
+            return this->letter;
+        }
+    };
+
+    /* Innere Knoten */
+    class InnerNode: AbstractNode {
+    private:
+        list<string> *nodes;
+    public:
+        /* Konstruktor */
+        InnerNode() {
+            nodes = list<string>();
+        }
+
+        bool isEmpty() {
+            return this->nodes->empty();
+        }
+    };
+
+    /* Blatt zum abspeichern der Values */
+    class Leaf: AbstractNode {
+    private:
+        mapped_type value;
+    public:
+        /* Konstruktor */
+        Leaf(mapped_type * finalValue): value(finalValue) {};
+
+        /* Überschreiben der Methode, standardisiert für alle Leafs */
+        char getValue() {
+            return '$';
+        }
+    };
+
+    /* Iterator für einen Trie */
+    class TrieIterator {
+    private:
+        Trie tree;
+        mapped_type element;
+    public:
+        /* Konstruktoren */
+        TrieIterator(Trie treeInput): tree(&treeInput) {};
+        TrieIterator(Trie treeInput, mapped_type inputElement): tree(&treeInput), element(inputElement) {};
+    };
 };
 
 #endif //THEULTIMATETREE_TRIE_H
