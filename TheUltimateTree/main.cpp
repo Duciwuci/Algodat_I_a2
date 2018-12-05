@@ -1,7 +1,10 @@
 #include <iostream>
 #include "Trie.h"
 
+using namespace std;
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    // TODO: why this didnt work?
+    Trie<basic_string<string>> *tree = Trie<string>();
+    std::cout << "Trie erstellt" << std::endl;
     return 0;
 }
