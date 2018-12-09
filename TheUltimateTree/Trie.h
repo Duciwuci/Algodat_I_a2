@@ -29,7 +29,7 @@ public:
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<const key_type, T> value_type;
     typedef T mapped_type;
-    typedef TrieIterator iterator;
+    typedef TrieIterator *iterator;
     /* Methoden */
     bool empty() const {
         return this->root->isEmpty();
@@ -55,7 +55,9 @@ public:
 
     /* "returns end() if not found" */
     // TODO: implement
-    iterator begin();
+    iterator begin() {
+        return TrieIterator(this);
+    }
 
     // TODO: implement
     iterator end();
@@ -99,13 +101,14 @@ public:
             nodes->clear();
         }
 
-        // TODO: braucht man hier zwingend die Adressoperation?
-        void addInner(InnerNode& node) {
+        void addInner(InnerNode * node) {
             this->nodes->insert(node);
+            this->nodes->sort();
         };
 
-        void addLeaf(Leaf& leaf) {
+        void addLeaf(Leaf * leaf) {
             this->nodes->insert(leaf);
+            this->nodes->sort();
         };
 
         // TODO: Was und wie funktioniert der Destruktor in cpp?!
@@ -139,7 +142,7 @@ public:
         mapped_type element;
     public:
         /* Konstruktoren */
-        TrieIterator(Trie treeInput): tree(&treeInput) {};
+        TrieIterator(Trie treeInput): tree(*treeInput) {};
         TrieIterator(Trie treeInput, mapped_type inputElement): tree(&treeInput), element(inputElement) {};
     };
 };
