@@ -17,13 +17,10 @@ class InnerNode;
 class Leaf;
 template <class T, class E=char>
 class Trie {
-private:
-    InnerNode *root;
-
 public:
     /* Konstruktor von Trie */
     Trie() {
-        root = InnerNode();
+        root = new InnerNode('$');
     }
     /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
@@ -70,8 +67,8 @@ public:
         AbstractNode *parent;
     public:
         /* Konstruktoren */
-        AbstractNode() {
-            letter = "";
+        AbstractNode(char sign) {
+            letter = sign;
             parent = nullptr;
         }
 
@@ -89,8 +86,8 @@ public:
         list<AbstractNode> *nodes;
     public:
         /* Konstruktor */
-        InnerNode() {
-            nodes = list<string>();
+        InnerNode(char input): AbstractNode(input) {
+            nodes = new list<AbstractNode>();
         }
 
         bool isEmpty() {
@@ -145,6 +142,9 @@ public:
         TrieIterator(Trie treeInput): tree(*treeInput) {};
         TrieIterator(Trie treeInput, mapped_type inputElement): tree(&treeInput), element(inputElement) {};
     };
+
+private:
+    InnerNode *root;
 };
 
 #endif //THEULTIMATETREE_TRIE_H
