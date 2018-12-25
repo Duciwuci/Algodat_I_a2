@@ -20,20 +20,34 @@ class Trie {
 public:
     /* Konstruktor von Trie */
     Trie() {
-        root = new InnerNode('$');
+        root = new InnerNode('$', 0);
     }
+
+
     /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<const key_type, T> value_type;
     typedef T mapped_type;
     typedef TrieIterator *iterator;
+
+
     /* Methoden */
     bool empty() const {
         return this->root->isEmpty();
     }
 
     // TODO: implement
-    iterator insert(const value_type& value);
+    iterator insert(const value_type& value) {
+        char way[] = *value.first;
+        int returnDepth = 0;
+        if(sizeof(&way) <= 0) {
+            return nullptr;
+        }
+        if(!root->gotKeyPart(way[0])) {
+            
+        }
+        return nullptr;
+    };
     // TODO: implement
     void erase(const key_type& value);
 
@@ -65,11 +79,13 @@ public:
     private:
         char letter;
         AbstractNode *parent;
+        int depht;
     public:
         /* Konstruktoren */
-        AbstractNode(char sign) {
+        AbstractNode(char sign, int depth) {
             letter = sign;
             parent = nullptr;
+            depht = depth;
         }
 
         AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
@@ -86,7 +102,7 @@ public:
         list<AbstractNode> *nodes;
     public:
         /* Konstruktor */
-        InnerNode(char input): AbstractNode(input) {
+        InnerNode(char input, int depht): AbstractNode(input, depht) {
             nodes = new list<AbstractNode>();
         }
 
@@ -108,6 +124,11 @@ public:
             this->nodes->sort();
         };
 
+        bool gotKeyPart(char toCheck) {
+            // TODO: implement
+            return true;
+        }
+
         // TODO: Was und wie funktioniert der Destruktor in cpp?!
         ~InnerNode();
     };
@@ -119,7 +140,7 @@ public:
         mapped_type value;
     public:
         /* Konstruktor */
-        Leaf(mapped_type * finalValue): value(finalValue) {};
+        Leaf(char input, int depht): AbstractNode(input, depht) {};
 
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getValue() {
