@@ -10,6 +10,7 @@
 #include <cstring>
 #include <list>
 #include <stack>
+#include <map>
 
 using namespace std;
 class TrieIterator;
@@ -37,25 +38,9 @@ public:
         return this->root->isEmpty();
     }
 
-    // TODO: solve inverse
-    iterator insert(const value_type& value) {
-        InnerNode toIterate = *root;
-        for (char key : value.first) {
-            if(!toIterate.gotKeyPart(key)) {
-                // wenn er einen weiteren Pfad hat, iterier weiter
-                toIterate = toIterate.getNext(key);
-            } else {
-                // wenn er keinen hat, adde und iterier weiter
-                toIterate.addInner(InnerNode(key));
-                toIterate =  toIterate.getNext(key);
-            }
-        }
-        // add leaf, wenn er er durch ist
-        toIterate.addLeaf(Leaf('$', value.second));
-        // return iterator
-        // TODO: give iterator an value
-        return iterator();
-    };
+    iterator insert(const value_type value) {
+        return insertToTree(value, root);
+    }
 
     // TODO: solve erase without getNext(), solve with new stack
     void erase(const key_type& value) {
@@ -101,6 +86,7 @@ public:
 
     /* Abstrakte Knotenklasse
      * Innere Knoten und Blätter werden von dieser abgeleitet */
+    // TODO: internationalisieren der Child Nodes auf die Abstrakte Klasse
     class AbstractNode {
     private:
         char letter;
@@ -163,14 +149,8 @@ public:
             }
         }
 
-        AbstractNode getNext(char toReturn) {
-            if(gotKeyPart(toReturn)) {
-                for(AbstractNode abs : *nodes) {
-                    if(abs.getValue() == toReturn) {
-                        return abs;
-                    }
-                }
-            }
+        list<AbstractNode> getSons() {
+            return nodes;
         }
 
         bool gotKeyPart(char toCheck) {
@@ -221,6 +201,16 @@ public:
 private:
     InnerNode *root;
     stack<pair <AbstractNode*, char>> stackToTrack;
+
+    // TODO: solve recursive
+    iterator insertToTree(const value_type value, AbstractNode *current) {
+
+
+
+        // return iterator
+        // TODO: give iterator an value
+        return iterator();
+    };
 };
 
 #endif //THEULTIMATETREE_TRIE_H
