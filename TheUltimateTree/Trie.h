@@ -20,7 +20,7 @@ class Trie {
 public:
     /* Konstruktor von Trie */
     Trie() {
-        root = new InnerNode('$', 0);
+        root = new InnerNode('$');
     }
 
 
@@ -36,23 +36,29 @@ public:
         return this->root->isEmpty();
     }
 
-    // TODO: implement
     iterator insert(const value_type& value) {
-        char way[] = *value.first;
-        int returnDepth = 0;
-        if(sizeof(&way) <= 0) {
-            return nullptr;
+        InnerNode toIterate = root;
+        for (char key : *value.first) {
+            if(!toIterate.gotKeyPart(key)) {
+                // wenn er einen weiteren Pfad hat, iterier weiter
+                toIterate = toIterate.getNext(key);
+            } else {
+                // wenn er keinen hat, adde und iterier weiter
+                toIterate.addInner(InnerNode(key));
+                toIterate =  toIterate.getNext(key);
+            }
         }
-        if(!root->gotKeyPart(way[0])) {
-
-        }
-        return nullptr;
+        // add leaf, wenn er er durch ist
+        toIterate.addLeaf(Leaf('$', value.second));
+        // return iterator
+        return iterator(this, value.second);
     };
 
     void erase(const key_type& value) {
         InnerNode toIterate = root;
         for(char key : *value) {
             if(toIterate.gotKeyPart(key)) {
+                // lösche Pfad, falls er nur einen Child hat
                 if(toIterate.isLonely()) {
                     InnerNode tmp = toIterate.getNext(key);
                     toIterate.removeNode(key);
@@ -64,7 +70,6 @@ public:
         }
         if(toIterate.getNext('$')) {
             toIterate.removeNode('$');
-
         }
     };
 
@@ -96,13 +101,11 @@ public:
     private:
         char letter;
         AbstractNode *parent;
-        int depht;
     public:
         /* Konstruktoren */
-        AbstractNode(char sign, int depth) {
+        AbstractNode(char sign) {
             letter = sign;
             parent = nullptr;
-            depht = depth;
         }
 
         AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
@@ -119,7 +122,7 @@ public:
         list<AbstractNode> *nodes;
     public:
         /* Konstruktor */
-        InnerNode(char input, int depht): AbstractNode(input, depht) {
+        InnerNode(char input): AbstractNode(input) {
             nodes = new list<AbstractNode>();
         }
 
@@ -184,7 +187,7 @@ public:
         mapped_type value;
     public:
         /* Konstruktor */
-        Leaf(char input, int depht): AbstractNode(input, depht) {};
+        Leaf(char input, mapped_type inputValue): AbstractNode(input), value(inputValue) {};
 
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getValue() {
