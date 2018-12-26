@@ -44,19 +44,36 @@ public:
             return nullptr;
         }
         if(!root->gotKeyPart(way[0])) {
-            
+
         }
         return nullptr;
     };
-    // TODO: implement
-    void erase(const key_type& value);
+
+    void erase(const key_type& value) {
+        InnerNode toIterate = root;
+        for(char key : *value) {
+            if(toIterate.gotKeyPart(key)) {
+                if(toIterate.isLonely()) {
+                    InnerNode tmp = toIterate.getNext(key);
+                    toIterate.removeNode(key);
+                    toIterate = tmp;
+                } else {
+                    toIterate = toIterate.getNext(key);
+                }
+            }
+        }
+        if(toIterate.getNext('$')) {
+            toIterate.removeNode('$');
+
+        }
+    };
 
     /* clear all leafs and keys */
     void clear() {
         this->root->clear();
     };
 
-    /* Iteratorabhänginge Methoden */
+    /* Iteratorabhängige Methoden */
     // TODO: implement
     iterator lower_bound(const key_type& testElement); // first element >= testElement
     // TODO: implement
@@ -110,6 +127,10 @@ public:
             return this->nodes->empty();
         }
 
+        bool isLonely() {
+            return this->nodes->size() == 1;
+        }
+
         void clear() {
             nodes->clear();
         }
@@ -121,12 +142,35 @@ public:
 
         void addLeaf(Leaf * leaf) {
             this->nodes->insert(leaf);
+            // TODO: implement sort method
             this->nodes->sort();
         };
 
+        void removeNode(char toRemove) {
+            for(AbstractNode remove : nodes) {
+                if(remove.getValue() == toRemove) {
+                    nodes->remove(remove);
+                }
+            }
+        }
+
+        AbstractNode getNext(char toReturn) {
+            if(gotKeyPart(toReturn)) {
+                for(AbstractNode abs : nodes) {
+                    if(abs.getValue() == toReturn) {
+                        return abs;
+                    }
+                }
+            }
+        }
+
         bool gotKeyPart(char toCheck) {
-            // TODO: implement
-            return true;
+            for(AbstractNode n : nodes) {
+                if(n.getValue() == toCheck) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // TODO: Was und wie funktioniert der Destruktor in cpp?!
@@ -156,11 +200,11 @@ public:
     // TODO: implement
     class TrieIterator {
     private:
-        Trie tree;
+        Trie &tree;
         mapped_type element;
     public:
         /* Konstruktoren */
-        TrieIterator(Trie treeInput): tree(*treeInput) {};
+        TrieIterator(Trie &treeInput): tree(&treeInput) {};
         TrieIterator(Trie treeInput, mapped_type inputElement): tree(&treeInput), element(inputElement) {};
     };
 
