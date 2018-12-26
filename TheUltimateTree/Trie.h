@@ -29,6 +29,7 @@ public:
     /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<const key_type, T> value_type;
+    typedef map<E, AbstractNode> son_type;
     typedef T mapped_type;
     typedef TrieIterator *iterator;
 
@@ -86,16 +87,17 @@ public:
 
     /* Abstrakte Knotenklasse
      * Innere Knoten und Blätter werden von dieser abgeleitet */
-    // TODO: internationalisieren der Child Nodes auf die Abstrakte Klasse
     class AbstractNode {
     private:
         char letter;
         AbstractNode *parent;
+        map<E, AbstractNode> *sons;
     public:
         /* Konstruktoren */
         AbstractNode(char sign) {
             letter = sign;
             parent = nullptr;
+            sons = map<E, AbstractNode>();
         }
 
         AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
@@ -104,19 +106,19 @@ public:
         virtual char getValue() {
             return this->letter;
         }
+
+        map<E, AbstractNode> getSons() {
+            return sons;
+        }
     };
 
     /* Innere Knoten */
 
     class Leaf;
     class InnerNode: AbstractNode {
-    private:
-        list<AbstractNode> *nodes;
     public:
         /* Konstruktor */
-        InnerNode(char input): AbstractNode(input) {
-            nodes = new list<AbstractNode>();
-        }
+        InnerNode(char input): AbstractNode(input) {};
 
         bool isEmpty() {
             return this->nodes->empty();
@@ -127,7 +129,7 @@ public:
         }
 
         void clear() {
-            nodes->clear();
+            this->getSons()->clear();
         }
 
         void addInner(InnerNode node) {
@@ -142,24 +144,11 @@ public:
         };
 
         void removeNode(char toRemove) {
-            for(AbstractNode remove : *nodes) {
-                if(remove.getValue() == toRemove) {
-                    nodes->remove(remove);
-                }
-            }
-        }
-
-        list<AbstractNode> getSons() {
-            return nodes;
+            // TODO: implement
         }
 
         bool gotKeyPart(char toCheck) {
-            for(AbstractNode n : *nodes) {
-                if(n.getValue() == toCheck) {
-                    return true;
-                }
-            }
-            return false;
+            // TODO: implement
         }
 
         // TODO: Was und wie funktioniert der Destruktor in cpp?!
