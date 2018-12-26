@@ -29,7 +29,6 @@ public:
     /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<const key_type, T> value_type;
-    typedef map<E, AbstractNode> son_type;
     typedef T mapped_type;
     typedef TrieIterator *iterator;
 
@@ -40,7 +39,8 @@ public:
     }
 
     iterator insert(const value_type value) {
-        return insertToTree(value, root);
+        // TODO: implement, a private method exists
+        return iterator();
     }
 
     // TODO: solve erase without getNext(), solve with new stack
@@ -97,7 +97,7 @@ public:
         AbstractNode(char sign) {
             letter = sign;
             parent = nullptr;
-            sons = map<E, AbstractNode>();
+            sons = new map<E, AbstractNode>();
         }
 
         AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
@@ -107,7 +107,7 @@ public:
             return this->letter;
         }
 
-        map<E, AbstractNode> getSons() {
+        map<E, AbstractNode> * getSons() {
             return sons;
         }
     };
@@ -121,11 +121,11 @@ public:
         InnerNode(char input): AbstractNode(input) {};
 
         bool isEmpty() {
-            return this->nodes->empty();
+            return this->getSons()->empty();
         }
 
         bool isLonely() {
-            return this->nodes->size() == 1;
+            return this->getSons()->size() == 1;
         }
 
         void clear() {
