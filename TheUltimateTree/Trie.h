@@ -37,19 +37,19 @@ public:
     }
 
     iterator insert(const value_type& value) {
-        InnerNode toIterate = root;
-        for (char key : *value.first) {
-            if(!toIterate.gotKeyPart(key)) {
+        InnerNode *toIterate = root;
+        for (char key : value.first) {
+            if(!toIterate->gotKeyPart(key)) {
                 // wenn er einen weiteren Pfad hat, iterier weiter
-                toIterate = toIterate.getNext(key);
+                toIterate = toIterate->getNext(key);
             } else {
                 // wenn er keinen hat, adde und iterier weiter
-                toIterate.addInner(InnerNode(key));
-                toIterate =  toIterate.getNext(key);
+                toIterate->addInner(InnerNode(key));
+                toIterate =  toIterate->getNext(key);
             }
         }
         // add leaf, wenn er er durch ist
-        toIterate.addLeaf(Leaf('$', value.second));
+        toIterate->addLeaf(Leaf('$', value.second));
         // return iterator
         return iterator(this, value.second);
     };
