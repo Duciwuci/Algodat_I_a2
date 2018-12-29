@@ -42,24 +42,46 @@ public:
         return insertRecursive(value, root);
     }
 
-    // TODO: solve erase without getNext(), solve with new stack
+    // erase, build up stack and build it down
     void erase(const key_type& value) {
-        InnerNode toIterate = root;
-        for(char key : value) {
-            if(toIterate.gotKeyPart(key)) {
-                // lösche Pfad, falls er nur einen Child hat
-                if(toIterate.isLonely()) {
-                    InnerNode tmp = toIterate.getNext(key);
-                    toIterate.removeNode(key);
-                    toIterate = tmp;
-                } else {
-                    toIterate = toIterate.getNext(key);
+        AbstractNode *path = root;
+        int popCounter = 0;
+        // build up stack
+        for(char point : value) {
+            if(path->getSons().find(point) == path->getSons().end()) {
+                for(int i = 0; i < stackToTrack.size(); --i) {
+                    stackToTrack.pop();
                 }
+                return;
             }
+            stackToTrack.push(pair <AbstractNode*, char>(path->getSons().find(point)->second, path->getSons().find(point)->first));
+            path = path->getSons().find(point)->second;
         }
-        if(toIterate.getNext(leafToken)) {
-            toIterate.removeNode(leafToken);
+        key_type debug = "";
+
+        // pop elements and delete if needed
+        int toPop = stackToTrack.size();
+        bool removeBefore = false;
+        char removeChar = '$';
+        for(int i = 0; i < toPop; ++i) {
+            pair<AbstractNode *, char> &tmp = stackToTrack.top();
+            if (removeBefore) {
+                tmp.first->getSons().erase(removeChar);
+            }
+            if (tmp.first->getSons().size() == 1 || tmp.first->getSons().size() == 0) {
+                delete tmp.first;
+                removeBefore = true;
+                removeChar = tmp.second;
+            } else {
+                removeBefore = false;
+            }
+            debug = tmp.second + debug;
+            stackToTrack.pop();
         }
+        if(removeBefore) {
+            root->getSons().erase(removeChar);
+        }
+        cout << "deleted " << debug << endl;
     };
 
     /* clear all leafs and keys */
@@ -108,6 +130,10 @@ public:
         map<E, AbstractNode*>& getSons() {
             return sons;
         }
+
+        bool isLonely() {
+            return this->getSons().size() == 1;
+        }
     };
 
     /* Innere Knoten */
@@ -120,10 +146,6 @@ public:
 
         bool isEmpty() {
             return this->getSons().empty();
-        }
-
-        bool isLonely() {
-            return this->getSons()->size() == 1;
         }
 
         void clear() {
