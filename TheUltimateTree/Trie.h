@@ -61,25 +61,25 @@ public:
 
         // pop elements and delete if needed
         int toPop = stackToTrack.size();
-        bool removeBefore = false;
-        char removeChar = '$';
+        bool continueRemoving = true;
+        char removeChar = leafToken;
         for(int i = 0; i < toPop; ++i) {
             pair<AbstractNode *, char> &tmp = stackToTrack.top();
-            if (removeBefore) {
+            if(continueRemoving) {
                 tmp.first->getSons().erase(removeChar);
+                debug = removeChar + debug;
+                if (tmp.first->getSons().empty()) {
+                    delete tmp.first;
+                    removeChar = tmp.second;
+                } else {
+                    continueRemoving = false;
+                }
             }
-            if (tmp.first->getSons().size() == 1 || tmp.first->getSons().size() == 0) {
-                delete tmp.first;
-                removeBefore = true;
-                removeChar = tmp.second;
-            } else {
-                removeBefore = false;
-            }
-            debug = tmp.second + debug;
             stackToTrack.pop();
         }
-        if(removeBefore) {
+        if(continueRemoving) {
             root->getSons().erase(removeChar);
+            debug = removeChar + debug;
         }
         cout << "deleted " << debug << endl;
     };
