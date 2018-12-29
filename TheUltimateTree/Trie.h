@@ -22,31 +22,30 @@ class Trie {
 public:
     /* Konstruktor von Trie */
     Trie() {
-        root = new InnerNode('$');
+        root = new InnerNode(leafToken);
     }
 
 
     /* Typedefs */
     typedef basic_string<E> key_type; // string=basic_string<char>
-    typedef pair<const key_type, T> value_type;
+    typedef pair<basic_string<E>, T> value_type;
     typedef T mapped_type;
     typedef TrieIterator *iterator;
 
 
     /* Methoden */
     bool empty() const {
-        return this->root->isEmpty();
+        return root->getSons().empty();
     }
 
     iterator insert(const value_type value) {
-        // TODO: implement, a private method exists
-        return iterator();
+        return insertRecursive(value, root);
     }
 
     // TODO: solve erase without getNext(), solve with new stack
     void erase(const key_type& value) {
         InnerNode toIterate = root;
-        for(char key : *value) {
+        for(char key : value) {
             if(toIterate.gotKeyPart(key)) {
                 // lösche Pfad, falls er nur einen Child hat
                 if(toIterate.isLonely()) {
@@ -58,14 +57,14 @@ public:
                 }
             }
         }
-        if(toIterate.getNext('$')) {
-            toIterate.removeNode('$');
+        if(toIterate.getNext(leafToken)) {
+            toIterate.removeNode(leafToken);
         }
     };
 
     /* clear all leafs and keys */
     void clear() {
-        this->root->clear();
+        this->root->getSons().clear();
     };
 
     /* Iteratorabhängige Methoden */
@@ -91,13 +90,12 @@ public:
     private:
         char letter;
         AbstractNode *parent;
-        map<E, AbstractNode> *sons;
+        map<E, AbstractNode*> sons;
     public:
         /* Konstruktoren */
         AbstractNode(char sign) {
             letter = sign;
             parent = nullptr;
-            sons = new map<E, AbstractNode>();
         }
 
         AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
@@ -107,7 +105,7 @@ public:
             return this->letter;
         }
 
-        map<E, AbstractNode> * getSons() {
+        map<E, AbstractNode*>& getSons() {
             return sons;
         }
     };
@@ -115,13 +113,13 @@ public:
     /* Innere Knoten */
 
     class Leaf;
-    class InnerNode: AbstractNode {
+    class InnerNode: public AbstractNode {
     public:
         /* Konstruktor */
         InnerNode(char input): AbstractNode(input) {};
 
         bool isEmpty() {
-            return this->getSons()->empty();
+            return this->getSons().empty();
         }
 
         bool isLonely() {
@@ -157,16 +155,17 @@ public:
 
     /* Blatt zum abspeichern der Values */
     // TODO: implement all methods
-    class Leaf: AbstractNode {
+    class Leaf: public AbstractNode {
     private:
         T value;
+        char leafToken = '$';
     public:
         /* Konstruktor */
-        Leaf(char input, T inputValue): AbstractNode(input), value(inputValue) {};
+        Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {};
 
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getValue() {
-            return '$';
+            return leafToken;
         }
 
         mapped_type getObject() {
@@ -190,11 +189,27 @@ public:
 private:
     InnerNode *root;
     stack<pair <AbstractNode*, char>> stackToTrack;
+    char leafToken = '$';
 
-    // TODO: solve recursive
-    iterator insertToTree(const value_type value, AbstractNode *current) {
+    // recursive method to insert
+    iterator insertRecursive(const value_type value, AbstractNode *current) {
+        key_type key = value.first;
 
+        // key is empty
+        if(key.length() == 0) {
+            current->getSons().insert(make_pair(leafToken, new Leaf(value.second)));
+            cout << "inserted " << value.second << " into " << current->getValue() << endl;
+            return iterator();
 
+            // try to find key, false if get end(), see map operations
+        } else if(current->getSons().find(key[0]) == current->getSons().end()) {
+            auto nextCurrent = current->getSons().insert(make_pair(key[0], new InnerNode(key[0])));
+            insertRecursive(make_pair(key.substr(1, key.length()), value.second), nextCurrent.first->second);
+
+            // else, if there is a mapped son
+        } else {
+            insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
+        }
 
         // return iterator
         // TODO: give iterator an value

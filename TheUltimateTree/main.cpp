@@ -5,9 +5,8 @@
 using namespace std;
 int main() {
     Trie<string> tree = Trie<string>();
-    std::cout << tree.empty() << std::endl;
-    // TODO: refactor the bug
-    pair<string, string> toAdd = pair<string, string>("Hallo", "Welt");
+    pair<string, string> toAdd = pair<string, string>("gbfd", "Welt");
     tree.insert(toAdd);
+    std::cout << tree.empty() << std::endl;
     return 0;
 }
