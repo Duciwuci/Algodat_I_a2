@@ -86,6 +86,7 @@ public:
 
     /* clear all leafs and keys */
     void clear() {
+        cout << "clear tree" << endl;
         this->root->getSons().clear();
     };
 
@@ -97,14 +98,33 @@ public:
     // TODO: implement
     iterator find(const key_type& testElement); // first element == testElement
 
-    /* "returns end() if not found" */
-    // TODO: implement
+    /* returns default iterator, if empty */
     iterator begin() {
-        return TrieIterator(this);
+        AbstractNode* path = root;
+        if(empty()) {
+            cout << "begin not found" << endl;
+            return iterator();
+        } else {
+            char proof = ' ';
+            while (proof != leafToken) {
+
+                if(path->getSons().begin()->first != '$') {
+                    path = path->getSons().begin()->second;
+                } else {
+                    proof = leafToken;
+                }
+            }
+        }
+        return iterator(path->getSons().begin()->second);
     }
 
-    // TODO: implement
-    iterator end();
+    /*
+     * returns default, if empty
+     */
+    // TODO: add operators to iterator and use them
+    iterator end() {
+       return iterator();
+    };
 
     /* Abstrakte Knotenklasse
      * Innere Knoten und Blätter werden von dieser abgeleitet */
@@ -130,10 +150,6 @@ public:
         map<E, AbstractNode*>& getSons() {
             return sons;
         }
-
-        bool isLonely() {
-            return this->getSons().size() == 1;
-        }
     };
 
     /* Innere Knoten */
@@ -143,33 +159,6 @@ public:
     public:
         /* Konstruktor */
         InnerNode(char input): AbstractNode(input) {};
-
-        bool isEmpty() {
-            return this->getSons().empty();
-        }
-
-        void clear() {
-            this->getSons()->clear();
-        }
-
-        void addInner(InnerNode node) {
-            this->nodes->insert(node);
-            this->nodes->sort();
-        };
-
-        void addLeaf(Leaf leaf) {
-            this->nodes->insert(leaf);
-            // TODO: implement sort method
-            this->nodes->sort();
-        };
-
-        void removeNode(char toRemove) {
-            // TODO: implement
-        }
-
-        bool gotKeyPart(char toCheck) {
-            // TODO: implement
-        }
 
         // TODO: Was und wie funktioniert der Destruktor in cpp?!
         ~InnerNode();
@@ -189,10 +178,6 @@ public:
         char getValue() {
             return leafToken;
         }
-
-        mapped_type getObject() {
-            return this->value;
-        }
     };
 
     /* Iterator für einen Trie */
@@ -200,12 +185,12 @@ public:
     class TrieIterator {
     private:
         Trie tree;
-        T element;
+        Leaf element;
     public:
         /* Konstruktoren */
         TrieIterator() {};
         TrieIterator(Trie &treeInput): tree(treeInput) {};
-        TrieIterator(Trie &treeInput, T inputElement): tree(treeInput), element(inputElement) {};
+        TrieIterator(Trie &treeInput, Leaf inputElement): tree(treeInput), element(inputElement) {};
     };
 
 private:

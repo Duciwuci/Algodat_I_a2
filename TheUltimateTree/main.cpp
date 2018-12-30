@@ -20,5 +20,16 @@ int main() {
     std::cout << tree.empty() << std::endl;
     tree.erase("abcd");
     std::cout << tree.empty() << std::endl;
+
+
+    tree.insert(toAdd2);
+    tree.clear();
+
+    std::cout << tree.empty() << std::endl;
+
+    tree.insert(toAdd2);
+    auto it = tree.begin();
+    tree.clear();
+    it = tree.begin();
     return 0;
 }
