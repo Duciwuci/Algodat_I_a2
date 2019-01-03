@@ -131,16 +131,12 @@ public:
     class AbstractNode {
     private:
         char letter;
-        AbstractNode *parent;
         map<E, AbstractNode*> sons;
     public:
         /* Konstruktoren */
         AbstractNode(char sign) {
             letter = sign;
-            parent = nullptr;
         }
-
-        AbstractNode(char keyPart, AbstractNode father): letter(keyPart), parent(&father) {};
 
         /* Virtual Methoden können von erbbaren Klassen überschrieben werden */
         virtual char getValue() {
@@ -160,7 +156,6 @@ public:
         /* Konstruktor */
         InnerNode(char input): AbstractNode(input) {};
 
-        // TODO: Was und wie funktioniert der Destruktor in cpp?!
         ~InnerNode();
     };
 
@@ -206,21 +201,18 @@ private:
         if(key.length() == 0) {
             current->getSons().insert(make_pair(leafToken, new Leaf(value.second)));
             cout << "inserted " << value.second << " into " << current->getValue() << endl;
+            // TODO: give iterator an value
             return iterator();
 
             // try to find key, false if get end(), see map operations
         } else if(current->getSons().find(key[0]) == current->getSons().end()) {
             auto nextCurrent = current->getSons().insert(make_pair(key[0], new InnerNode(key[0])));
-            insertRecursive(make_pair(key.substr(1, key.length()), value.second), nextCurrent.first->second);
+            return insertRecursive(make_pair(key.substr(1, key.length()), value.second), nextCurrent.first->second);
 
             // else, if there is a mapped son
         } else {
-            insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
+            return insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
         }
-
-        // return iterator
-        // TODO: give iterator an value
-        return iterator();
     };
 };
 
