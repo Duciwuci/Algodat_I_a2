@@ -176,16 +176,24 @@ public:
     };
 
     /* Iterator für einen Trie */
-    // TODO: implement
     class TrieIterator {
     private:
         Trie tree;
-        Leaf element;
+        stack<pair <AbstractNode*, char>> leafPath;
     public:
         /* Konstruktoren */
         TrieIterator() {};
         TrieIterator(Trie &treeInput): tree(treeInput) {};
-        TrieIterator(Trie &treeInput, Leaf inputElement): tree(treeInput), element(inputElement) {};
+        // TODO: implement
+        iterator & find(); // clear stack and find
+        // TODO: implement
+        iterator & begin(); // iterate always first first()
+        // TODO: implement
+        iterator & end(); // iterate always last end()
+        // TODO: implement
+        iterator & operator++(); // build down and up stack
+        // TODO: implement
+        iterator & operator--(); // build down and up stack
     };
 
 private:
