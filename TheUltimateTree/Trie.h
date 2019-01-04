@@ -33,10 +33,13 @@ public:
 
 
     /* Iterator für einen Trie */
+    class AbstractNode;
     class TrieIterator {
     private:
         Trie tree;
-        stack<pair <AbstractNode*, char>> leafPath;
+        stack<pair<AbstractNode*, E>> leafPath;
+        AbstractNode *memory;
+        char leafToken = '$';
     public:
         typedef TrieIterator iterator;
 
@@ -44,24 +47,9 @@ public:
         TrieIterator() {};
         TrieIterator(Trie &treeInput): tree(treeInput) {};
         // TODO: implement
-        iterator & find(const key_type& key) {
-            //leafPath = {};
-            AbstractNode* node = tree.root;
-
-
-            for (char c : key) {
-                node = node->GetSonNode(c);
-                if (node == nullptr) {
-                    return this->end();
-                }
-                 //std::pair<AbstractNode*, char> p = std::pair<AbstractNode*, char>(node, c);
-
-                leafPath.push(std::pair<AbstractNode*, char>(node, c));
-            }
-
-            return *this;
-
-        }; // clear stack and find
+        iterator & find(const key_type key) {
+            return recursiveFind(key, tree.root);
+        }; // and find
         // TODO: implement
         iterator & begin(); // iterate always first first()
         // TODO: implement
@@ -74,10 +62,22 @@ public:
         // TODO: implement
         iterator & operator--(); // build down and up stack
 
+        E getValue() {
+            return memory->getValue();
+        }
+
         //iterator & operator =();
 
         T& operator*() {
 
+        }
+    private:
+        iterator & recursiveFind(key_type key, AbstractNode* current) {
+            if(key.length() <= 0) {
+                this->memory = current->getSonNode(leafToken);
+                return *this;
+            }
+            return recursiveFind(key.substr(1, key.length()), current->getSonNode(key[0]));
         }
     };
     typedef TrieIterator iterator;
@@ -98,9 +98,7 @@ public:
         // build up stack
         for(char point : value) {
             if(path->getSons().find(point) == path->getSons().end()) {
-                for(int i = 0; i < stackToTrack.size(); --i) {
-                    stackToTrack.pop();
-                }
+                stackToTrack = {};
                 return;
             }
             stackToTrack.push(pair <AbstractNode*, char>(path->getSons().find(point)->second, path->getSons().find(point)->first));
@@ -190,8 +188,8 @@ public:
             letter = sign;
         }
 
-        AbstractNode* GetSonNode(char c) {
-            map<E, AbstractNode*>& sons = this->getSons();
+        AbstractNode* getSonNode(char c) {
+            map<E, AbstractNode*> sons = this->getSons();
             auto iter = sons.find(c);
             if (iter == sons.end()) {
                 return nullptr;

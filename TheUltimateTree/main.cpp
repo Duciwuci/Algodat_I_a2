@@ -15,7 +15,8 @@ int main() {
     tree.insert(toAdd);
     tree.insert(toAdd2);
 
-    tree.find("abcd");
+    cout << "find " << tree.find("abcdf").getValue() << endl;
+
 
     tree.erase("abcdf");
 
