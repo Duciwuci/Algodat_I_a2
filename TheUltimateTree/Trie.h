@@ -30,8 +30,57 @@ public:
     typedef basic_string<E> key_type; // string=basic_string<char>
     typedef pair<basic_string<E>, T> value_type;
     typedef T mapped_type;
-    typedef TrieIterator *iterator;
 
+
+    /* Iterator für einen Trie */
+    class TrieIterator {
+    private:
+        Trie tree;
+        stack<pair <AbstractNode*, char>> leafPath;
+    public:
+        typedef TrieIterator iterator;
+
+        /* Konstruktoren */
+        TrieIterator() {};
+        TrieIterator(Trie &treeInput): tree(treeInput) {};
+        // TODO: implement
+        iterator & find(const key_type& key) {
+            //leafPath = {};
+            AbstractNode* node = tree.root;
+
+
+            for (char c : key) {
+                node = node->GetSonNode(c);
+                if (node == nullptr) {
+                    return this->end();
+                }
+                 //std::pair<AbstractNode*, char> p = std::pair<AbstractNode*, char>(node, c);
+
+                leafPath.push(std::pair<AbstractNode*, char>(node, c));
+            }
+
+            return *this;
+
+        }; // clear stack and find
+        // TODO: implement
+        iterator & begin(); // iterate always first first()
+        // TODO: implement
+        iterator & end() {
+            leafPath = {};
+            return *this;
+        };
+        // TODO: implement
+        iterator & operator++(); // build down and up stack
+        // TODO: implement
+        iterator & operator--(); // build down and up stack
+
+        //iterator & operator =();
+
+        T& operator*() {
+
+        }
+    };
+    typedef TrieIterator iterator;
 
     /* Methoden */
     bool empty() const {
@@ -96,7 +145,10 @@ public:
     // TODO: implement
     iterator upper_bound(const key_type& testElement); // first element > testElement
     // TODO: implement
-    iterator find(const key_type& testElement); // first element == testElement
+    iterator find(const key_type& testElement) {
+        iterator it = iterator(*this);
+        return it.find(testElement);
+    }; // first element == testElement
 
     /* returns default iterator, if empty */
     iterator begin() {
@@ -116,26 +168,35 @@ public:
             }
         }
         return iterator(path->getSons().begin()->second);
-    }
+    };
 
     /*
      * returns default, if empty
      */
     // TODO: add operators to iterator and use them
     iterator end() {
-       return iterator();
+        return iterator();
     };
 
     /* Abstrakte Knotenklasse
      * Innere Knoten und Blätter werden von dieser abgeleitet */
     class AbstractNode {
     private:
-        char letter;
         map<E, AbstractNode*> sons;
     public:
+        char letter;
         /* Konstruktoren */
         AbstractNode(char sign) {
             letter = sign;
+        }
+
+        AbstractNode* GetSonNode(char c) {
+            map<E, AbstractNode*>& sons = this->getSons();
+            auto iter = sons.find(c);
+            if (iter == sons.end()) {
+                return nullptr;
+            }
+            return iter->second;
         }
 
         /* Virtual Methoden können von erbbaren Klassen überschrieben werden */
@@ -157,6 +218,7 @@ public:
         InnerNode(char input): AbstractNode(input) {};
 
         ~InnerNode();
+
     };
 
     /* Blatt zum abspeichern der Values */
@@ -175,26 +237,6 @@ public:
         }
     };
 
-    /* Iterator für einen Trie */
-    class TrieIterator {
-    private:
-        Trie tree;
-        stack<pair <AbstractNode*, char>> leafPath;
-    public:
-        /* Konstruktoren */
-        TrieIterator() {};
-        TrieIterator(Trie &treeInput): tree(treeInput) {};
-        // TODO: implement
-        iterator & find(); // clear stack and find
-        // TODO: implement
-        iterator & begin(); // iterate always first first()
-        // TODO: implement
-        iterator & end(); // iterate always last end()
-        // TODO: implement
-        iterator & operator++(); // build down and up stack
-        // TODO: implement
-        iterator & operator--(); // build down and up stack
-    };
 
 private:
     InnerNode *root;
