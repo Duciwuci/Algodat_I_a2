@@ -8,7 +8,9 @@ int main() {
     pair<string, string> toAdd = pair<string, string>("abcd", "Welt");
 
     pair<string, string> toAdd2 = pair<string, string>("abcdf", "Welt");
+
     tree.insert(toAdd);
+    /*
     std::cout << tree.empty() << std::endl;
     tree.erase("abcd");
     std::cout << tree.empty() << std::endl;
@@ -24,6 +26,6 @@ int main() {
     tree.erase("abcd");
     std::cout << tree.empty() << std::endl;
 
-
+*/
     return 0;
 }

@@ -36,15 +36,15 @@ public:
     class AbstractNode;
     class TrieIterator {
     private:
-        AbstractNode& root;
+        AbstractNode* root;
         stack<pair<AbstractNode*, E>> leafPath;
-        Leaf &memory;
+        AbstractNode *memory;
         char leafToken = '$';
     public:
         typedef TrieIterator iterator;
 
         /* Konstruktoren */
-        TrieIterator(AbstractNode &treeInput, Leaf& start): root(treeInput), memory(start) {};
+        TrieIterator(AbstractNode *treeInput): root(treeInput) {};
         iterator & find(const key_type key) {
             return recursiveFind(key, root);
         }; // and find
@@ -149,7 +149,7 @@ public:
     iterator upper_bound(const key_type& testElement); // first element > testElement
 
     iterator find(const key_type& testElement) {
-        iterator it = iterator(*this);
+        iterator it = iterator(root);
         return it.find(testElement);
     }; // first element == testElement
 
@@ -242,11 +242,11 @@ public:
     private:
         T value;
         char leafToken = '$';
-        Leaf & previous;
-        Leaf & next;
+        Leaf * previous;
+        Leaf * next;
     public:
         /* Konstruktor */
-        Leaf(T inputValue, Leaf& previous, Leaf & next): AbstractNode(leafToken), value(inputValue), previous(previous), next(next) {
+        Leaf(T inputValue, Leaf* previous, Leaf * next): AbstractNode(leafToken), value(inputValue), previous(previous), next(next) {
 
         };
 
@@ -255,19 +255,19 @@ public:
             return leafToken;
         }
 
-        void setPrevious(Leaf & previous1) {
+        void setPrevious(Leaf * previous1) {
             previous = previous1;
         }
 
-        Leaf & getPrevious() {
-            return (Leaf&) this->previous;
+        Leaf * getPrevious() {
+            return (Leaf*) this->previous;
         }
 
-        void setNext(Leaf & next1) {
+        void setNext(Leaf * next1) {
             next = next1;
         }
 
-        Leaf & getNext() {
+        Leaf * getNext() {
             return this->next;
         }
 
@@ -299,18 +299,18 @@ private:
 
         // key is empty
         if(key.length() == 0) {
-            Leaf & tmp = findNextLeafFromStack();
-            current->getSons().insert(make_pair(leafToken, new Leaf(value.second, tmp.getPrevious(), tmp)));
+            Leaf * tmp = findNextLeafFromStack();
+            current->getSons().insert(make_pair(leafToken, new Leaf(value.second, tmp->getPrevious(), tmp)));
             if(tmp != nullptr) {
-                // TODO: null checks
-                Leaf & currentLeaf = (Leaf&) (current->getSons().find(leafToken))->second;
-                tmp.getPrevious().setNext(currentLeaf);
-                ((Leaf&) current->getSons().find(leafToken)->second).setPrevious(tmp.getPrevious());
-                tmp.setPrevious((Leaf&) current->getSons().find(leafToken)->second);
-                ((Leaf&) current->getSons().find(leafToken)->second).setNext(tmp);
+                // TODO: null checks, Verknüpfung schlägt fehl
+                Leaf * currentLeaf = (Leaf*) (current->getSons().find(leafToken))->second;
+                tmp->getPrevious()->setNext(currentLeaf);
+                ((Leaf*) current->getSons().find(leafToken)->second)->setPrevious(tmp->getPrevious());
+                tmp->setPrevious((Leaf*) current->getSons().find(leafToken)->second);
+                ((Leaf*) current->getSons().find(leafToken)->second)->setNext(tmp);
             }
             cout << "inserted " << value.second << " into " << current->getValue() << endl;
-            return TrieIterator(this->root, (Leaf&) current->getSons().find(leafToken)->second);
+            return TrieIterator(root);
 
             // try to find key, false if get end(), see map operations
         } else if(current->getSons().find(key[0]) == current->getSons().end()) {
@@ -327,7 +327,7 @@ private:
         }
     };
 
-    Leaf & findNextLeafFromStack() {
+    Leaf * findNextLeafFromStack() {
         AbstractNode * tmp = stackToTrack.top().first;
         auto sons = tmp->getSons();
         if(tmp->getSons().size() > 1) {
@@ -339,13 +339,13 @@ private:
         }
     }
 
-    Leaf & findNextLeaf(char input) {
+    Leaf * findNextLeaf(char input) {
         AbstractNode * tmp = stackToTrack.top().first;
         if(input == leafToken) {
             tmp = tmp->getSons().begin()->second;
         } else {
             if(tmp->getSons().find(leafToken) != tmp->getSons().end()) {
-                return (Leaf&) tmp->getSons().find(leafToken)->second;
+                return (Leaf*) tmp->getSons().find(leafToken)->second;
             }
         }
         // iterier always first
@@ -353,10 +353,10 @@ private:
             tmp = tmp->getSons().begin()->second;
         }
         stackToTrack = {};
-        return (Leaf&) tmp;
+        return (Leaf*) tmp;
     };
 
-    Leaf & findNexLeafFromStackRecursive(char input) {
+    Leaf * findNexLeafFromStackRecursive(char input) {
         AbstractNode * tmp = stackToTrack.top().first;
         if(tmp->getSons().size() > 1) {
             if(tmp->getSons().find(leafToken) != tmp->getSons().end()) {
