@@ -357,6 +357,7 @@ private:
     };
 
     Leaf * findNexLeafFromStackRecursive(char input) {
+        cout << stackToTrack.size() << endl;
         AbstractNode * tmp = stackToTrack.top().first;
         if(tmp->getSons().size() > 1) {
             if(tmp->getSons().find(leafToken) != tmp->getSons().end()) {
@@ -364,8 +365,7 @@ private:
                 tmp = stackToTrack.top().first;
             }
             return findNextLeaf(tmp->getValue());
-        }
-        else {
+        } else {
             stackToTrack.pop();
             return findNextLeafFromStack();
         }
