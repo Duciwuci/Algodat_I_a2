@@ -36,7 +36,7 @@ public:
     class AbstractNode;
     class TrieIterator {
     private:
-        Trie& tree;
+        AbstractNode& root;
         stack<pair<AbstractNode*, E>> leafPath;
         Leaf &memory;
         char leafToken = '$';
@@ -44,9 +44,9 @@ public:
         typedef TrieIterator iterator;
 
         /* Konstruktoren */
-        iterator(Trie &treeInput, Leaf& start): tree(treeInput), memory(start) {};
+        TrieIterator(AbstractNode &treeInput, Leaf& start): root(treeInput), memory(start) {};
         iterator & find(const key_type key) {
-            return recursiveFind(key, tree.root);
+            return recursiveFind(key, root);
         }; // and find
         // TODO: implement
         iterator & begin(); // iterate always first first()
@@ -310,10 +310,7 @@ private:
                 ((Leaf&) current->getSons().find(leafToken)->second).setNext(tmp);
             }
             cout << "inserted " << value.second << " into " << current->getValue() << endl;
-
-
-            // TODO: give iterator an value
-            return iterator(this, (Leaf&) current->getSons().find(leafToken)->second);
+            return TrieIterator(this->root, (Leaf&) current->getSons().find(leafToken)->second);
 
             // try to find key, false if get end(), see map operations
         } else if(current->getSons().find(key[0]) == current->getSons().end()) {
