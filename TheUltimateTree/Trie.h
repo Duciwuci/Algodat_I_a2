@@ -38,7 +38,7 @@ public:
     private:
         Trie tree;
         stack<pair<AbstractNode*, E>> leafPath;
-        AbstractNode *memory;
+        Leaf &memory;
         char leafToken = '$';
     public:
         typedef TrieIterator iterator;
@@ -46,30 +46,35 @@ public:
         /* Konstruktoren */
         TrieIterator() {};
         TrieIterator(Trie &treeInput): tree(treeInput) {};
-        // TODO: implement
         iterator & find(const key_type key) {
             return recursiveFind(key, tree.root);
         }; // and find
         // TODO: implement
         iterator & begin(); // iterate always first first()
-        // TODO: implement
+        // TODO: implement right way
         iterator & end() {
             leafPath = {};
             return *this;
         };
-        // TODO: implement
-        iterator & operator++(); // build down and up stack
-        // TODO: implement
-        iterator & operator--(); // build down and up stack
+
+        iterator & operator++() {
+            // TODO: null checks
+            memory = Leaf::memory.getNext();
+            return this;
+        }; // build down and up stack
+
+        iterator & operator--() {
+            // TODO: null checks
+            memory = Leaf::memory.getPrevious();
+            return this;
+        }; // build down and up stack
 
         E getValue() {
-            return memory->getValue();
+            return this->memory->getValue();
         }
 
-        //iterator & operator =();
-
         T& operator*() {
-
+            return memory;
         }
     private:
         iterator & recursiveFind(key_type key, AbstractNode* current) {
@@ -142,7 +147,7 @@ public:
     iterator lower_bound(const key_type& testElement); // first element >= testElement
     // TODO: implement
     iterator upper_bound(const key_type& testElement); // first element > testElement
-    // TODO: implement
+
     iterator find(const key_type& testElement) {
         iterator it = iterator(*this);
         return it.find(testElement);
@@ -225,6 +230,8 @@ public:
     private:
         T value;
         char leafToken = '$';
+        Leaf previous;
+        Leaf next;
     public:
         /* Konstruktor */
         Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {};
@@ -232,6 +239,22 @@ public:
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getValue() {
             return leafToken;
+        }
+
+        void setPrevious(Leaf & previous) {
+            this->previous = previous;
+        }
+
+        Leaf & getPrevious() {
+            return this->previous;
+        }
+
+        void setNext(Leaf & next) {
+            this->next = next;
+        }
+
+        Leaf & getNext() {
+            return this->next;
         }
     };
 
