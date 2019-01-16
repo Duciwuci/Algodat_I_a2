@@ -157,7 +157,18 @@ public:
             return recursiveFind(key, root);
         }; // and find
         // TODO: implement
-        iterator & begin(); // iterate always first first()
+        iterator & begin() {
+            auto it = root->getSons().begin();
+            if (it == root->getSons().end()) {
+                return end();
+            }
+            while (it->first != leafToken) {
+                it = it->second->getSons().begin();
+            }
+            memory = (Leaf*) it->second;
+            return *this;
+        }
+
         // TODO: implement right way
         iterator & end() {
             leafPath = {};
@@ -166,14 +177,14 @@ public:
 
         iterator & operator++() {
             // TODO: null checks
-            memory = Leaf::memory.getNext();
-            return this;
+            memory = (Leaf*) memory->getNext();
+            return *this;
         }; // build down and up stack
 
         iterator & operator--() {
             // TODO: null checks
-            memory = Leaf::memory.getPrevious();
-            return this;
+            memory = memory->getPrevious();
+            return *this;
         }; // build down and up stack
 
         E getValue() {
@@ -264,7 +275,7 @@ public:
     /* returns default iterator, if empty */
     iterator begin() {
         AbstractNode* path = root;
-        if(empty()) {
+        /*if(empty()) {
             cout << "begin not found" << endl;
             return iterator(this->root);
         } else {
@@ -278,7 +289,8 @@ public:
                 }
             }
         }
-        return iterator(path->getSons().begin()->second);
+        return iterator(path->getSons().begin()->second);*/
+        return iterator(root).begin();
     };
 
     /*
@@ -299,9 +311,39 @@ private:
     iterator insertRecursive(const value_type value, AbstractNode *current) {
         key_type key = value.first;
 
+        //auto bla = GetNextBranch();
+        //auto blub = GetNextOrPreviousLeaf(bla.second, bla.first);
+
+
+
         // key is empty
         if(key.length() == 0) {
-            Leaf * tmp = findNextLeafFromStack();
+            auto p = make_pair(leafToken, new Leaf(value.second));
+            current->getSons().insert(p);
+
+            auto branchPair = GetNextBranch();
+            Leaf * leaf;
+            bool next = true;
+            //if there is a word which is almost the same (only shorter)
+            // wir - wird -> wir is previous
+            if (branchPair.first == leafToken) {
+                leaf = (Leaf*) branchPair.second;
+                // first Word in list
+                if (leaf->getLetter() == leafToken) {
+                    return TrieIterator(root);
+                }
+                next = false;
+            } else {
+                auto nextPair = GetNextOrPreviousLeaf(branchPair.second, branchPair.first);
+                // if first is false, its a previous Leaf
+                if (!nextPair.first) {
+                    next = false;
+                }
+                leaf = nextPair.second;
+            }
+            this->setPrevOrNext(next, (Leaf*) current, leaf);
+
+            /*Leaf * tmp = findNextLeafFromStack();
             current->getSons().insert(make_pair(leafToken, new Leaf(value.second)));
             if(tmp != nullptr) {
                 // TODO: null checks, Verknüpfung schlägt fehl
@@ -310,24 +352,47 @@ private:
                 ((Leaf*) current->getSons().find(leafToken)->second)->setPrevious(tmp->getPrevious());
                 tmp->setPrevious((Leaf*) current->getSons().find(leafToken)->second);
                 ((Leaf*) current->getSons().find(leafToken)->second)->setNext(tmp);
-            }
+            }*/
             cout << "inserted " << value.second << " into " << current->getLetter() << endl;
+            stackToTrack = {};
             return TrieIterator(root);
 
             // try to find key, false if get end(), see map operations
         } else if(current->getSons().find(key[0]) == current->getSons().end()) {
             auto nextCurrent = current->getSons().insert(make_pair(key[0], new InnerNode(key[0])));
-            stackToTrack.push(pair <AbstractNode*, char>(current, current->getLetter()));
+            //TODO: Wenn der richtige iterator zurückgegeben wird muss die nachfolgende Zeilen gelöscht werden
+            // und der Wert des iterators benutzt werden...
+            auto tmpIt = current->getSons().find(key[0]);
+
+            stackToTrack.push(pair <AbstractNode*, char>(tmpIt->second, tmpIt->first));
 
             return insertRecursive(make_pair(key.substr(1, key.length()), value.second), nextCurrent.first->second);
 
             // else, if there is a mapped son
         } else {
-
-            stackToTrack.push(pair <AbstractNode*, char>(current, current->getLetter()));
-            return insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
+            auto cur = current->getSons().find(key[0])->second;
+            stackToTrack.push(pair <AbstractNode*, char>(cur, cur->getLetter()));
+            return insertRecursive(make_pair(key.substr(1, key.length()), value.second), cur);
+            //stackToTrack.push(pair <AbstractNode*, char>(current, current->getLetter()));
+            //return insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
         }
     };
+
+    void setPrevOrNext(bool next, Leaf* leaf, Leaf* prevOrNext) {
+        if (next) {
+            auto prev = prevOrNext->getPrevious();
+            leaf->setPrevious(prev);
+            if (prev != nullptr) prev->setNext(leaf);
+            leaf->setNext(prevOrNext);
+            prevOrNext->setPrevious(leaf);
+        } else {
+            auto next = prevOrNext->getNext();
+            if (next != nullptr) next->setPrevious(leaf);
+            leaf->setNext(next);
+            prevOrNext->setNext(leaf);
+            leaf->setPrevious(prevOrNext);
+        }
+    }
 
     Leaf * findNextLeafFromStack() {
         AbstractNode * tmp = stackToTrack.top().first;
@@ -340,6 +405,57 @@ private:
             return findNexLeafFromStackRecursive(newChar);
         }
     }
+
+    pair<char, AbstractNode *> GetNextBranch() {
+        AbstractNode * tmp = stackToTrack.top().first;
+        char c = tmp->getLetter();
+        while(tmp->getSons().size() == 1) {
+            c = tmp->getLetter();
+            stackToTrack.pop();
+
+            //case --> first Word of Trie
+            if (stackToTrack.size() == 0) {
+                if (root->getSons().size() > 1) {
+                    return make_pair(c, root);
+                }
+                return make_pair(leafToken, root);
+            }
+            tmp = stackToTrack.top().first;
+        }
+
+        auto it = tmp->getSons();
+        if (it.find(leafToken) != it.end()) {
+            return make_pair(leafToken, tmp);
+        }
+
+        return make_pair(c, tmp);
+    }
+
+    pair<bool, Leaf *> GetNextOrPreviousLeaf(AbstractNode * branchNode, char c) {
+        auto sons = branchNode->getSons();
+        auto mapIterator = sons.find(c);
+
+        //AbstractNode * tmp = stackToTrack.top().first;
+        auto s = mapIterator->second->getSons();
+        if (++mapIterator != sons.end()) {
+            mapIterator = s.find(leafToken);
+            while(mapIterator == s.end()) {
+                s = s.begin()->second->getSons();
+                mapIterator = s.find(leafToken);
+            }
+            return make_pair(true, (Leaf*) mapIterator->second);
+            //return make_pair(true, mapIterator*.second);
+        }
+        mapIterator--;
+        mapIterator--;
+        s = mapIterator->second->getSons();
+        mapIterator = s.find(leafToken);
+        while (mapIterator == s.end() /*&& s.size() > 1*/) {
+            s = s.rbegin()->second->getSons();
+            mapIterator = s.find(leafToken);
+        }
+        return make_pair(false, (Leaf*) mapIterator->second);
+    };
 
     Leaf * findNextLeaf(char input) {
         AbstractNode * tmp = stackToTrack.top().first;
@@ -359,7 +475,6 @@ private:
     };
 
     Leaf * findNexLeafFromStackRecursive(char input) {
-        cout << stackToTrack.size() << endl;
         AbstractNode * tmp = stackToTrack.top().first;
         if (tmp->letter == leafToken) {
             // root
