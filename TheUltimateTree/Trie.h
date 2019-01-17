@@ -90,13 +90,11 @@ public:
     private:
         T value;
         char leafToken = '$';
-        Leaf * previous;
-        Leaf * next;
+        Leaf * previous = nullptr;
+        Leaf * next = nullptr;
     public:
         /* Konstruktor */
-        Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {
-
-        };
+            Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {};
 
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getLetter() {
@@ -108,7 +106,7 @@ public:
         }
 
         void setPrevious(Leaf * previous1) {
-            previous = previous1;
+            this->previous = previous1;
         }
 
         Leaf * getPrevious() {
@@ -116,7 +114,7 @@ public:
         }
 
         void setNext(Leaf * next1) {
-            next = next1;
+            this->next = next1;
         }
 
         Leaf * getNext() {
@@ -156,7 +154,7 @@ public:
         iterator & find(const key_type key) {
             return recursiveFind(key, root);
         }; // and find
-        // TODO: implement
+
         iterator & begin() {
             auto it = root->getSons().begin();
             if (it == root->getSons().end()) {
@@ -176,14 +174,16 @@ public:
         };
 
         iterator & operator++() {
-            // TODO: null checks
-            memory = (Leaf*) memory->getNext();
+            if(memory->getNext() != nullptr) {
+                this->memory = (Leaf*) this->memory->getNext();
+            }
             return *this;
         }; // build down and up stack
 
         iterator & operator--() {
-            // TODO: null checks
-            memory = memory->getPrevious();
+            if(memory->getPrevious() != nullptr) {
+                this->memory = this->memory->getPrevious();
+            }
             return *this;
         }; // build down and up stack
 
@@ -340,7 +340,7 @@ private:
                 }
                 leaf = nextPair.second;
             }
-            this->setPrevOrNext(next, (Leaf*) current, leaf);
+            this->setPrevOrNext(next, (Leaf*) current->getSons().find(leafToken)->second, leaf);
 
             /*Leaf * tmp = findNextLeafFromStack();
             current->getSons().insert(make_pair(leafToken, new Leaf(value.second)));
@@ -378,14 +378,15 @@ private:
     };
 
     void setPrevOrNext(bool next, Leaf* leaf, Leaf* prevOrNext) {
+        cout << prevOrNext->getValue() << " with " << leaf->getValue() << " da " << next << endl;
         if (next) {
-            auto prev = prevOrNext->getPrevious();
+            Leaf* prev = prevOrNext->getPrevious();
             leaf->setPrevious(prev);
             if (prev != nullptr) prev->setNext(leaf);
             leaf->setNext(prevOrNext);
             prevOrNext->setPrevious(leaf);
         } else {
-            auto next = prevOrNext->getNext();
+            Leaf* next = prevOrNext->getNext();
             if (next != nullptr) next->setPrevious(leaf);
             leaf->setNext(next);
             prevOrNext->setNext(leaf);

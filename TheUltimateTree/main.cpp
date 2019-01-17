@@ -4,7 +4,7 @@
 
 using namespace std;
 int main() {
-    Trie<string> tree = Trie<string>();
+    Trie<string> tree;
     pair<string, string> toAdd = pair<string, string>("sind", "are");
 
     pair<string, string> toAdd2 = pair<string, string>("weis", "know");
@@ -18,22 +18,21 @@ int main() {
     tree.insert(toAdd3);
     tree.insert(toAdd4);
     tree.insert(toAdd5);
-    tree.insert(toAdd6);
+    /*tree.insert(toAdd6);
 
-    auto it = tree.begin();
+    */auto it = tree.begin();
+    std::cout << *it << std::endl;
+    ++it;
+    --it;
+    std::cout << *it << std::endl;
+    ++it;
+    std::cout << *it << std::endl;
+    ++it;
+    std::cout << it.operator*() << std::endl;
+    /*it.operator++();
     std::cout << it.operator*() << std::endl;
     it.operator++();
-    it.operator--();
     std::cout << it.operator*() << std::endl;
-    it.operator++();
-    std::cout << it.operator*() << std::endl;
-    it.operator++();
-    std::cout << it.operator*() << std::endl;
-    it.operator++();
-    std::cout << it.operator*() << std::endl;
-    it.operator++();
-    std::cout << it.operator*() << std::endl;
-
 
 
     auto bla = tree.find("sind");
@@ -50,8 +49,7 @@ int main() {
     std::cout << bla.operator*() << std::endl;
     bla = tree.find("wo");
     std::cout << bla.operator*() << std::endl;
-
-
+ */
     /*
     std::cout << tree.empty() << std::endl;
     tree.erase("abcd");
