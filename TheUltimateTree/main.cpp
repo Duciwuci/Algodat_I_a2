@@ -8,6 +8,8 @@ void findWord(Trie<string> * tree);
 
 void iterateAll(Trie<string> * tree);
 
+void eraseWord(Trie<string> * tree);
+
 void listMenu();
 
 using namespace std;
@@ -46,6 +48,8 @@ int main() {
                 break;
             case 2: findWord(&tree);
                 break;
+            case 3: eraseWord(&tree);
+                break;
             case 5: break;
             default: std::cout << answer << " ist kein Menüpunkt!";
         }
@@ -80,6 +84,13 @@ void findWord(Trie<string> * tree) {
     }
 }
 
+void eraseWord(Trie<string> * tree) {
+   string key;
+   std::cout << "Welches Wort soll gelöscht werden?" << std::endl;
+   std::cin >> key;
+   tree->erase(key);
+}
+
 void iterateAll(Trie<string> * tree) {
     for (auto i = tree->begin(); i != tree->end(); ++i) {
         std::cout << *i << std::endl;
@@ -91,5 +102,6 @@ void listMenu() {
     std::cout << " 0: Menü" << std::endl;
     std::cout << " 1: Wort hinzufügen" << std::endl;
     std::cout << " 2: Suchen einer Übersetzung" << std::endl;
+    std::cout << " 3: Entfernen einen Wortes" << std::endl;
     std::cout << " 5: Beenden" << std::endl;
 }

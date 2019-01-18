@@ -222,7 +222,6 @@ public:
     }
 
     // erase, build up stack and build it down
-    // TODO: unchain Leafs
     void erase(const key_type& value) {
         AbstractNode *path = root;
         int popCounter = 0;
@@ -239,6 +238,9 @@ public:
 
         // pop elements and delete if needed
         int toPop = stackToTrack.size();
+        if(toPop > 0) {
+            unchainLeaf((Leaf*) stackToTrack.top().first->getSons().find(leafToken)->second);
+        }
         bool continueRemoving = true;
         char removeChar = leafToken;
         for(int i = 0; i < toPop; ++i) {
@@ -349,11 +351,20 @@ private:
         }
     };
 
+    Leaf * unchainLeaf(Leaf* toUnchain) {
+        Leaf* previous = toUnchain->getPrevious();
+        Leaf* next = toUnchain->getNext();
+        if(previous != nullptr) previous->setNext(next);
+        if(next != nullptr) next->setPrevious(previous);
+        return toUnchain;
+    }
+
     void setPrevOrNext(bool next, Leaf* leaf, Leaf* prevOrNext) {
         if (next) {
             Leaf* prev = prevOrNext->getPrevious();
             leaf->setPrevious(prev);
-            if (prev != nullptr) prev->setNext(leaf);
+            if (prev != nullptr) {
+                prev->setNext(leaf);}
             leaf->setNext(prevOrNext);
             prevOrNext->setPrevious(leaf);
         } else {
