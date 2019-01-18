@@ -53,7 +53,6 @@ public:
             return iter->second;
         }
 
-        /* Virtual Methoden können von erbbaren Klassen überschrieben werden */
         virtual char getLetter() {
             return this->letter;
         }
@@ -61,15 +60,6 @@ public:
         map<E, AbstractNode*>& getSons() {
             return sons;
         }
-/*
-        virtual void setPrevious(Leaf & previous) {
-            return;
-        }
-        virtual Leaf & getPrevious() {return Leaf();};
-        virtual void setNext(Leaf & next) {
-            return;
-        }
-        virtual Leaf & getNext() {return Leaf();};*/
     };
 
     /* Innere Knoten */
@@ -94,7 +84,7 @@ public:
         Leaf * next = nullptr;
     public:
         /* Konstruktor */
-            Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {};
+        Leaf(T inputValue): AbstractNode(leafToken), value(inputValue) {};
 
         /* Überschreiben der Methode, standardisiert für alle Leafs */
         char getLetter() {
@@ -142,8 +132,8 @@ public:
     class TrieIterator {
     private:
         AbstractNode* root;
-        stack<pair<AbstractNode*, E>> leafPath;
         Leaf * memory;
+        stack<pair<AbstractNode*, E>> leafPath;
         char leafToken = '$';
     public:
         typedef TrieIterator iterator;
@@ -153,7 +143,11 @@ public:
 
         iterator & find(const key_type key) {
             return recursiveFind(key, root);
-        }; // and find
+        };
+
+        Leaf * GetLeaf() {
+            return memory;
+        }
 
         iterator & begin() {
             auto it = root->getSons().begin();
@@ -167,28 +161,36 @@ public:
             return *this;
         }
 
-        // TODO: implement right way
         iterator & end() {
-            leafPath = {};
+            memory = nullptr;
             return *this;
         };
 
         iterator & operator++() {
-            if(memory->getNext() != nullptr) {
-                this->memory = (Leaf*) this->memory->getNext();
+            if(memory != nullptr) {
+                this->memory = this->memory->getNext();
             }
             return *this;
-        }; // build down and up stack
+        };
 
         iterator & operator--() {
             if(memory->getPrevious() != nullptr) {
                 this->memory = this->memory->getPrevious();
             }
             return *this;
-        }; // build down and up stack
+        };
 
-        E getValue() {
-            return this->memory->getValue();
+        bool operator==(iterator it) {
+            if (memory != nullptr && it.GetLeaf() == nullptr) return false;
+            if (memory == nullptr && it.GetLeaf() != nullptr) return false;
+            if (memory == nullptr && it.GetLeaf() == nullptr) return true;
+            if (memory->getValue() != it.GetLeaf()->getValue()) return false;
+
+            return true;
+        }
+
+        bool operator!=(iterator it) {
+            return !(*this == it);
         }
 
         T operator*() {
@@ -199,6 +201,11 @@ public:
             if(key.length() <= 0) {
                 this->memory = (Leaf*) current->getSonNode(leafToken);
                 return *this;
+            }
+            auto sons = current->getSons();
+            auto it = sons.find(key[0]);
+            if (it == sons.end()) {
+                return end();
             }
             return recursiveFind(key.substr(1, key.length()), current->getSonNode(key[0]));
         }
@@ -267,39 +274,21 @@ public:
     // TODO: implement
     iterator upper_bound(const key_type& testElement); // first element > testElement
 
+    iterator end() {
+        auto it = iterator(root);
+        it.end();
+        return it;
+    }
+
     iterator find(const key_type& testElement) {
         iterator it = iterator(root);
         return it.find(testElement);
-    }; // first element == testElement
+    };
 
     /* returns default iterator, if empty */
     iterator begin() {
-        AbstractNode* path = root;
-        /*if(empty()) {
-            cout << "begin not found" << endl;
-            return iterator(this->root);
-        } else {
-            char proof = ' ';
-            while (proof != leafToken) {
-                if(path->getSons().begin()->first != '$') {
-                    path = path->getSons().begin()->second;
-                } else {
-                    proof = leafToken;
-                }
-            }
-        }
-        return iterator(path->getSons().begin()->second);*/
         return iterator(root).begin();
     };
-
-    /*
-     * returns default, if empty
-     */
-    // TODO: add operators to iterator and use them
-    iterator end() {
-        return iterator(this->root);
-    };
-
 
 private:
     InnerNode *root;
@@ -309,11 +298,6 @@ private:
     // recursive method to insert
     iterator insertRecursive(const value_type value, AbstractNode *current) {
         key_type key = value.first;
-
-        //auto bla = GetNextBranch();
-        //auto blub = GetNextOrPreviousLeaf(bla.second, bla.first);
-
-
 
         // key is empty
         if(key.length() == 0) {
@@ -331,6 +315,7 @@ private:
                 if (leaf->getLetter() == leafToken) {
                     return TrieIterator(root);
                 }
+                leaf = (Leaf*) branchPair.second->getSons().find(leafToken)->second;
                 next = false;
             } else {
                 auto nextPair = GetNextOrPreviousLeaf(branchPair.second, branchPair.first);
@@ -342,17 +327,6 @@ private:
             }
             this->setPrevOrNext(next, (Leaf*) current->getSons().find(leafToken)->second, leaf);
 
-            /*Leaf * tmp = findNextLeafFromStack();
-            current->getSons().insert(make_pair(leafToken, new Leaf(value.second)));
-            if(tmp != nullptr) {
-                // TODO: null checks, Verknüpfung schlägt fehl
-                Leaf * currentLeaf = (Leaf*) (current->getSons().find(leafToken))->second;
-                tmp->getPrevious()->setNext(currentLeaf);
-                ((Leaf*) current->getSons().find(leafToken)->second)->setPrevious(tmp->getPrevious());
-                tmp->setPrevious((Leaf*) current->getSons().find(leafToken)->second);
-                ((Leaf*) current->getSons().find(leafToken)->second)->setNext(tmp);
-            }*/
-            cout << "inserted " << value.second << " into " << current->getLetter() << endl;
             stackToTrack = {};
             return TrieIterator(root);
 
@@ -372,13 +346,10 @@ private:
             auto cur = current->getSons().find(key[0])->second;
             stackToTrack.push(pair <AbstractNode*, char>(cur, cur->getLetter()));
             return insertRecursive(make_pair(key.substr(1, key.length()), value.second), cur);
-            //stackToTrack.push(pair <AbstractNode*, char>(current, current->getLetter()));
-            //return insertRecursive(make_pair(key.substr(1, key.length()), value.second), current->getSons().find(key[0])->second);
         }
     };
 
     void setPrevOrNext(bool next, Leaf* leaf, Leaf* prevOrNext) {
-        cout << prevOrNext->getValue() << " with " << leaf->getValue() << " da " << next << endl;
         if (next) {
             Leaf* prev = prevOrNext->getPrevious();
             leaf->setPrevious(prev);
@@ -391,18 +362,6 @@ private:
             leaf->setNext(next);
             prevOrNext->setNext(leaf);
             leaf->setPrevious(prevOrNext);
-        }
-    }
-
-    Leaf * findNextLeafFromStack() {
-        AbstractNode * tmp = stackToTrack.top().first;
-        auto sons = tmp->getSons();
-        if(tmp->getSons().size() > 1) {
-            return findNextLeaf(leafToken);
-        } else if (tmp->getSons().size() == 1) {
-            char newChar = tmp->getLetter();
-            stackToTrack.pop();
-            return findNexLeafFromStackRecursive(newChar);
         }
     }
 
@@ -435,62 +394,32 @@ private:
         auto sons = branchNode->getSons();
         auto mapIterator = sons.find(c);
 
-        //AbstractNode * tmp = stackToTrack.top().first;
         auto s = mapIterator->second->getSons();
         if (++mapIterator != sons.end()) {
+            s = mapIterator->second->getSons();
             mapIterator = s.find(leafToken);
             while(mapIterator == s.end()) {
                 s = s.begin()->second->getSons();
                 mapIterator = s.find(leafToken);
             }
             return make_pair(true, (Leaf*) mapIterator->second);
-            //return make_pair(true, mapIterator*.second);
         }
         mapIterator--;
         mapIterator--;
         s = mapIterator->second->getSons();
         mapIterator = s.find(leafToken);
         while (mapIterator == s.end() /*&& s.size() > 1*/) {
-            s = s.rbegin()->second->getSons();
+            auto tmpIt = s.rbegin();
+            if (tmpIt->second->getLetter() == leafToken) {
+                tmpIt--;
+                s = tmpIt->second->getSons();
+                continue;
+            }
+            s = tmpIt->second->getSons();
             mapIterator = s.find(leafToken);
         }
         return make_pair(false, (Leaf*) mapIterator->second);
     };
-
-    Leaf * findNextLeaf(char input) {
-        AbstractNode * tmp = stackToTrack.top().first;
-        if(input == leafToken) {
-            tmp = tmp->getSons().begin()->second;
-        } else {
-            if(tmp->getSons().find(leafToken) != tmp->getSons().end()) {
-                return (Leaf*) tmp->getSons().find(leafToken)->second;
-            }
-        }
-        // iterier always first
-        while(tmp->getLetter() != leafToken) {
-            tmp = tmp->getSons().begin()->second;
-        }
-        stackToTrack = {};
-        return (Leaf*) tmp;
-    };
-
-    Leaf * findNexLeafFromStackRecursive(char input) {
-        AbstractNode * tmp = stackToTrack.top().first;
-        if (tmp->letter == leafToken) {
-            // root
-            return nullptr;
-        }
-        if(tmp->getSons().size() > 1) {
-            if(tmp->getSons().find(leafToken) != tmp->getSons().end()) {
-                stackToTrack.pop();
-                tmp = stackToTrack.top().first;
-            }
-            return findNextLeaf(tmp->getLetter());
-        } else {
-            stackToTrack.pop();
-            return findNextLeafFromStack();
-        }
-    }
 };
 
 #endif //THEULTIMATETREE_TRIE_H
