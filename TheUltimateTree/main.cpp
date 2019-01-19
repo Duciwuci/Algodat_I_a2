@@ -28,7 +28,7 @@ int main() {
     pair<string, string> toAdd6 = pair<string, string>("wo", "where");
     pair<string, string> toAdd7 = pair<string, string>("test","test");
     pair<string, string> toAdd8 = pair<string, string>("hallo","hello");
-    pair<string, string> toAdd9 = pair<string, string>("schoen","nice");
+    pair<string, string> toAdd9 = pair<string, string>("schoen","beautiful");
 
     tree.insert(toAdd2);
     tree.insert(toAdd3);
@@ -40,12 +40,21 @@ int main() {
     tree.insert(toAdd9);
     tree.insert(toAdd7);
     std::string answer = "";
+
+    int key;
     while (answer != "7") {
         std::cout << "Was wollen Sie tun? (Menüpunkte --> 0)" << std::endl;
 
         std::cin >> answer;
 
-        switch (std::stoi(answer)) {
+        try {
+            key = std::stoi(answer);
+        } catch (std::invalid_argument& e) {
+            std::cout << answer << " ist kein Menüpunkt!" << std::endl;
+            continue;
+        }
+
+        switch (key) {
             case 0: listMenu();
                 break;
             case 1: addWord(&tree);
