@@ -218,7 +218,8 @@ public:
     }
 
     iterator insert(const value_type value) {
-        return insertRecursive(value, root);
+        insertRecursive(value, root);
+        return find(value.first);
     }
 
     // erase, build up stack and build it down
@@ -289,7 +290,6 @@ public:
         return it.find(testElement);
     };
 
-    /* returns default iterator, if empty */
     iterator begin() {
         return iterator(root).begin();
     };
@@ -300,7 +300,7 @@ private:
     char leafToken = '$';
 
     // recursive method to insert
-    iterator insertRecursive(const value_type value, AbstractNode *current) {
+    void insertRecursive(const value_type value, AbstractNode *current) {
         key_type key = value.first;
 
         // key is empty
@@ -311,13 +311,14 @@ private:
             auto branchPair = GetNextBranch();
             Leaf * leaf;
             bool next = true;
+
             //if there is a word which is almost the same (only shorter)
             // wir - wird -> wir is previous
             if (branchPair.first == leafToken) {
                 leaf = (Leaf*) branchPair.second;
                 // first Word in list
                 if (leaf->getLetter() == leafToken) {
-                    return TrieIterator(root);
+                    return;
                 }
                 leaf = (Leaf*) branchPair.second->getSons().find(leafToken)->second;
                 next = false;
@@ -332,13 +333,11 @@ private:
             this->setPrevOrNext(next, (Leaf*) current->getSons().find(leafToken)->second, leaf);
 
             stackToTrack = {};
-            return TrieIterator(root);
+            return;
 
             // try to find key, false if get end(), see map operations
         } else if(current->getSons().find(key[0]) == current->getSons().end()) {
             auto nextCurrent = current->getSons().insert(make_pair(key[0], new InnerNode(key[0])));
-            //TODO: Wenn der richtige iterator zurückgegeben wird muss die nachfolgende Zeilen gelöscht werden
-            // und der Wert des iterators benutzt werden...
             auto tmpIt = current->getSons().find(key[0]);
 
             stackToTrack.push(pair <AbstractNode*, char>(tmpIt->second, tmpIt->first));
