@@ -261,12 +261,14 @@ public:
             root->getSons().erase(removeChar);
             debug = removeChar + debug;
         }
-        cout << "deleted " << debug << endl;
     };
+
+    void output() {
+        writeRecursive(root, 0);
+    }
 
     /* clear all leafs and keys */
     void clear() {
-        cout << "clear tree" << endl;
         this->root->getSons().clear();
     };
 
@@ -350,6 +352,21 @@ private:
             return insertRecursive(make_pair(key.substr(1, key.length()), value.second), cur);
         }
     };
+
+    void writeRecursive(AbstractNode * node, int level) {
+        auto sons = node->getSons();
+        int curLev = level;
+
+        for (auto it = sons.begin(); it != sons.end(); ++it) {
+            AbstractNode * tmp = it->second;
+            if (tmp->getLetter() == leafToken) {
+                std::cout << std::string (curLev, ' ') << ": " << ((Leaf *) tmp)->getValue() << std::endl;
+            } else{
+                std::cout << std:: string (curLev, ' ') << tmp->getLetter() << std::endl;
+            }
+            writeRecursive(tmp, level + 1);
+        }
+    }
 
     Leaf * unchainLeaf(Leaf* toUnchain) {
         Leaf* previous = toUnchain->getPrevious();
