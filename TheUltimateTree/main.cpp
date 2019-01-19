@@ -10,6 +10,10 @@ void iterateAll(Trie<string> * tree);
 
 void eraseWord(Trie<string> * tree);
 
+void writeTree(Trie<string> * tree);
+
+void clearTree(Trie<string> * tree);
+
 void listMenu();
 
 using namespace std;
@@ -36,7 +40,7 @@ int main() {
     tree.insert(toAdd9);
     tree.insert(toAdd7);
     std::string answer = "";
-    while (answer != "5") {
+    while (answer != "7") {
         std::cout << "Was wollen Sie tun? (Menüpunkte --> 0)" << std::endl;
 
         std::cin >> answer;
@@ -50,7 +54,13 @@ int main() {
                 break;
             case 3: eraseWord(&tree);
                 break;
-            case 5: break;
+            case 4: writeTree(&tree);
+                break;
+            case 5: clearTree(&tree);
+                break;
+            case 6: iterateAll(&tree);
+                break;
+            case 7: break;
             default: std::cout << answer << " ist kein Menüpunkt!";
         }
     }
@@ -85,16 +95,37 @@ void findWord(Trie<string> * tree) {
 }
 
 void eraseWord(Trie<string> * tree) {
-   string key;
-   std::cout << "Welches Wort soll gelöscht werden?" << std::endl;
-   std::cin >> key;
-   tree->erase(key);
+    string key;
+    std::cout << "Welches Wort soll gelöscht werden?" << std::endl;
+    std::cin >> key;
+    if (tree->find(key) == tree->end()) {
+        std::cout << "Das Wort '" << key << "' ist nicht im Wörterbuch vorhanden.";
+        return;
+    }
+    tree->erase(key);
+    std::cout << key << " wurde aus dem Wörterbuch gelöscht.";
 }
 
 void iterateAll(Trie<string> * tree) {
+    if (tree->begin() == tree->end()) {
+        std::cout << "Das Wörterbuch ist leer" << std::endl;
+    }
     for (auto i = tree->begin(); i != tree->end(); ++i) {
         std::cout << *i << std::endl;
     }
+}
+
+void writeTree(Trie<string> * tree) {
+    if (tree->begin() == tree->end()) {
+        std::cout << "Das Wörterbuch ist leer." << std::endl;
+        return;
+    }
+    tree->output();
+}
+
+void clearTree(Trie<string> * tree) {
+    tree->clear();
+    std::cout << "Das Wörterbuch wurde geleert." << std::endl;
 }
 
 void listMenu() {
@@ -103,5 +134,8 @@ void listMenu() {
     std::cout << " 1: Wort hinzufügen" << std::endl;
     std::cout << " 2: Suchen einer Übersetzung" << std::endl;
     std::cout << " 3: Entfernen einen Wortes" << std::endl;
-    std::cout << " 5: Beenden" << std::endl;
+    std::cout << " 4: Ausgabe des kompletten Baum in primtiver Ansicht" << std::endl;
+    std::cout << " 5: Leeren des Wörterbuchs" << std::endl;
+    std::cout << " 6: Ausgabe aller English Wörtern" << std::endl;
+    std::cout << " 7: Beenden" << std::endl;
 }
