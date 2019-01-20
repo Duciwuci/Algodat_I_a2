@@ -399,26 +399,8 @@ private:
         auto result = new TrieIterator(root, (Leaf*) sons.find(leafToken)->second);
         return *result;
     }
-    /*iterator & recursiveLower(key_type key, AbstractNode* current) {
-        auto sons = current->getSons();
-        auto it = sons.find(key[0]);
-        if (it == sons.end()) {
-            for (auto i = sons.begin(); i != sons.end(); ++i) {
-                if (key[0] <= i->first) {
-                    it = i;
-                    break;
-                }
-            }
-            if (it->first == leafToken) {
-                iterator result = iterator(root, (Leaf*) it->second);
-                return result;
-                //return iterator(root, (Leaf*) it->second);
-            }
-        }
-        return recursiveLower(key.substr(1, key.length()), it->second);
-    }*/
-
-    void writeRecursive(AbstractNode * node, int level) {
+   
+   void writeRecursive(AbstractNode * node, int level) {
         auto sons = node->getSons();
         int curLev = level;
 
