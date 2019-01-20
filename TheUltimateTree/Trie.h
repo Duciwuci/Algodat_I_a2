@@ -133,13 +133,17 @@ public:
     private:
         AbstractNode* root;
         Leaf * memory;
-        stack<pair<AbstractNode*, E>> leafPath;
         char leafToken = '$';
     public:
         typedef TrieIterator iterator;
 
         /* Konstruktoren */
         TrieIterator(AbstractNode *treeInput): root(treeInput) {};
+
+        TrieIterator(AbstractNode *treeInput, Leaf * leaf) {
+            root = treeInput;
+            memory = leaf;
+        }
 
         iterator & find(const key_type key) {
             return recursiveFind(key, root);
@@ -197,6 +201,7 @@ public:
             return memory->getValue();
         }
     private:
+
         iterator & recursiveFind(key_type key, AbstractNode* current) {
             if(key.length() <= 0) {
                 this->memory = (Leaf*) current->getSonNode(leafToken);
@@ -274,10 +279,32 @@ public:
     };
 
     /* Iteratorabhängige Methoden */
-    // TODO: implement
-    iterator lower_bound(const key_type& testElement); // first element >= testElement
-    // TODO: implement
-    iterator upper_bound(const key_type& testElement); // first element > testElement
+    iterator lower_bound(const key_type& testElement) {
+        auto it = find(testElement);
+        if (it != end()) {
+            return it;
+        }
+        int num;
+        auto sons = root->getSons();
+        for (int i = 0; i < testElement.length(); i++) {
+            auto tmpIt = sons.find(i);
+            if (tmpIt == sons.end()) {
+                num = i;
+                break;
+            }
+            sons = tmpIt->second->getSons();
+        }
+
+        return findBound(testElement.substr(num, testElement.length()), root);
+    }
+
+    iterator upper_bound(const key_type& testElement) {
+        auto it = this->find(testElement);
+        if (it != end()) {
+            return ++it;
+        }
+        return lower_bound(testElement);
+    }
 
     iterator end() {
         auto it = iterator(root);
@@ -351,6 +378,45 @@ private:
             return insertRecursive(make_pair(key.substr(1, key.length()), value.second), cur);
         }
     };
+
+    iterator & findBound(key_type key, AbstractNode* root) {
+        auto sons = root->getSons();
+        auto it = sons.find(key[0]);
+
+        if (it == sons.end()) {
+            for (auto i = sons.begin(); i != sons.end(); ++i) {
+                if (i->first > it->first) {
+                    it = i;
+                    break;
+                }
+            }
+        }
+        sons = it->second->getSons();
+        while (sons.find(leafToken) == sons.end()) {
+            sons = sons.begin()->second->getSons();
+        }
+
+        auto result = new TrieIterator(root, (Leaf*) sons.find(leafToken)->second);
+        return *result;
+    }
+    /*iterator & recursiveLower(key_type key, AbstractNode* current) {
+        auto sons = current->getSons();
+        auto it = sons.find(key[0]);
+        if (it == sons.end()) {
+            for (auto i = sons.begin(); i != sons.end(); ++i) {
+                if (key[0] <= i->first) {
+                    it = i;
+                    break;
+                }
+            }
+            if (it->first == leafToken) {
+                iterator result = iterator(root, (Leaf*) it->second);
+                return result;
+                //return iterator(root, (Leaf*) it->second);
+            }
+        }
+        return recursiveLower(key.substr(1, key.length()), it->second);
+    }*/
 
     void writeRecursive(AbstractNode * node, int level) {
         auto sons = node->getSons();
