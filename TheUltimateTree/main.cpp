@@ -14,6 +14,8 @@ void writeTree(Trie<string> * tree);
 
 void clearTree(Trie<string> * tree);
 
+void lowerAndUpperBound(Trie<string> * tree);
+
 void listMenu();
 
 using namespace std;
@@ -39,18 +41,19 @@ int main() {
     tree.insert(toAdd8);
     tree.insert(toAdd9);
     tree.insert(toAdd7);
-    std::string answer = "";
+
+    string answer = "";
 
     int key;
-    while (answer != "7") {
-        std::cout << "Was wollen Sie tun? (Menüpunkte --> 0)" << std::endl;
+    while (answer != "8") {
+        cout << "Was wollen Sie tun? (Menüpunkte --> 0)" << endl;
 
-        std::cin >> answer;
+        cin >> answer;
 
         try {
             key = std::stoi(answer);
         } catch (std::invalid_argument& e) {
-            std::cout << answer << " ist kein Menüpunkt!" << std::endl;
+            cout << answer << " ist kein Menüpunkt!" << endl;
             continue;
         }
 
@@ -69,8 +72,10 @@ int main() {
                 break;
             case 6: iterateAll(&tree);
                 break;
-            case 7: break;
-            default: std::cout << answer << " ist kein Menüpunkt!";
+            case 7: lowerAndUpperBound(&tree);
+                break;
+            case 8: break;
+            default: cout << answer << " ist kein Menüpunkt!" << endl;
         }
     }
     return 0;
@@ -80,53 +85,53 @@ void addWord(Trie<string> * tree) {
     string key;
     string word;
 
-    std::cout << "Eingabe des deutschen Worts" << std::endl;
-    std::cin >> key;
-    std::cout << "Übersetzung" << std::endl;
-    std::cin >> word;
+    cout << "Eingabe des deutschen Worts" << endl;
+    cin >> key;
+    cout << "Übersetzung" << endl;
+    cin >> word;
 
     pair<string, string> element = pair<string, string>(key, word);
     tree->insert(element);
-    std::cout << key << " mit Übersetzung: " << word << " wurde hinzugefügt." << std::endl;
+    cout << key << " mit Übersetzung: " << word << " wurde hinzugefügt." << endl;
 }
 
 void findWord(Trie<string> * tree) {
     string key;
 
-    std::cout << "Welches Wort soll übersetzt werden?" << std::endl;
-    std::cin >> key;
+    cout << "Welches Wort soll übersetzt werden?" << endl;
+    cin >> key;
     auto it = tree->find(key);
     if (it == tree->end()) {
-        std::cout << "Es tut mir leid, aber ich kann für " << key << " leider keine Übersetzung finden." << std::endl;
+        cout << "Es tut mir leid, aber ich kann für " << key << " leider keine Übersetzung finden." << endl;
     } else {
-        std::cout << key << " übersetzt bedeutet: " << *it << std::endl;
+        cout << key << " übersetzt bedeutet: " << *it << endl;
     }
 }
 
 void eraseWord(Trie<string> * tree) {
     string key;
-    std::cout << "Welches Wort soll gelöscht werden?" << std::endl;
-    std::cin >> key;
+    cout << "Welches Wort soll gelöscht werden?" << endl;
+    cin >> key;
     if (tree->find(key) == tree->end()) {
-        std::cout << "Das Wort '" << key << "' ist nicht im Wörterbuch vorhanden.";
+        cout << "Das Wort '" << key << "' ist nicht im Wörterbuch vorhanden." << endl;
         return;
     }
     tree->erase(key);
-    std::cout << key << " wurde aus dem Wörterbuch gelöscht.";
+    cout << key << " wurde aus dem Wörterbuch gelöscht." << endl;
 }
 
 void iterateAll(Trie<string> * tree) {
     if (tree->begin() == tree->end()) {
-        std::cout << "Das Wörterbuch ist leer" << std::endl;
+        cout << "Das Wörterbuch ist leer" << endl;
     }
     for (auto i = tree->begin(); i != tree->end(); ++i) {
-        std::cout << *i << std::endl;
+        cout << *i << endl;
     }
 }
 
 void writeTree(Trie<string> * tree) {
     if (tree->begin() == tree->end()) {
-        std::cout << "Das Wörterbuch ist leer." << std::endl;
+        cout << "Das Wörterbuch ist leer." << endl;
         return;
     }
     tree->output();
@@ -134,17 +139,27 @@ void writeTree(Trie<string> * tree) {
 
 void clearTree(Trie<string> * tree) {
     tree->clear();
-    std::cout << "Das Wörterbuch wurde geleert." << std::endl;
+    cout << "Das Wörterbuch wurde geleert." << endl;
+}
+
+void lowerAndUpperBound(Trie<string> *tree) {
+    string bound = "";
+    cout << "Suchwort eingeben:" << endl;
+    cin >> bound;
+
+    cout << "lower_bound: " << *tree->lower_bound(bound) << endl;
+    cout << "upper_bound: " << *tree->upper_bound(bound) << endl;
 }
 
 void listMenu() {
-    std::cout << "Menü:" << std::endl;
-    std::cout << " 0: Menü" << std::endl;
-    std::cout << " 1: Wort hinzufügen" << std::endl;
-    std::cout << " 2: Suchen einer Übersetzung" << std::endl;
-    std::cout << " 3: Entfernen einen Wortes" << std::endl;
-    std::cout << " 4: Ausgabe des kompletten Baum in primtiver Ansicht" << std::endl;
-    std::cout << " 5: Leeren des Wörterbuchs" << std::endl;
-    std::cout << " 6: Ausgabe aller English Wörtern" << std::endl;
-    std::cout << " 7: Beenden" << std::endl;
+    cout << "Menü:" << endl;
+    cout << " 0: Menü" << endl;
+    cout << " 1: Wort hinzufügen" << endl;
+    cout << " 2: Suchen einer Übersetzung" << endl;
+    cout << " 3: Entfernen einen Wortes" << endl;
+    cout << " 4: Ausgabe des kompletten Baum in primtiver Ansicht" << endl;
+    cout << " 5: Leeren des Wörterbuchs" << endl;
+    cout << " 6: Ausgabe aller English Wörtern" << endl;
+    cout << " 7: Suche von Lower- und Upper-Bound" << endl;
+    cout << " 8: Beenden" << endl;
 }
