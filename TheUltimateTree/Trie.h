@@ -379,6 +379,8 @@ private:
         auto sons = root->getSons();
         auto it = sons.find(key[0]);
 
+        // solange der Iterator nichts findet,
+        // TODO: Raphi, was passiert hier?
         if (it == sons.end()) {
             for (auto i = sons.begin(); i != sons.end(); ++i) {
                 if (i->first > it->first) {
@@ -388,6 +390,8 @@ private:
             }
         }
         sons = it->second->getSons();
+        // Solange es kein Leaf existiert,
+        // geh in den ersten und hol die Sons.
         while (sons.find(leafToken) == sons.end()) {
             sons = sons.begin()->second->getSons();
         }
@@ -411,6 +415,7 @@ private:
         }
     }
 
+    // Unchain Leafs, gebraucht wir die sie eigentlich nur im Erase.
     Leaf * unchainLeaf(Leaf* toUnchain) {
         Leaf* previous = toUnchain->getPrevious();
         Leaf* next = toUnchain->getNext();
@@ -419,20 +424,23 @@ private:
         return toUnchain;
     }
 
+    // false: set previous. true: set next.
+    // Allgemein funktionierts auch, wenn keins von beiden existiert.
     void setPrevOrNext(bool next, Leaf* leaf, Leaf* prevOrNext) {
-        if (next) {
-            Leaf* prev = prevOrNext->getPrevious();
-            leaf->setPrevious(prev);
-            if (prev != nullptr) {
-                prev->setNext(leaf);}
-            leaf->setNext(prevOrNext);
-            prevOrNext->setPrevious(leaf);
-        } else {
-            Leaf* next = prevOrNext->getNext();
-            if (next != nullptr) next->setPrevious(leaf);
-            leaf->setNext(next);
-            prevOrNext->setNext(leaf);
-            leaf->setPrevious(prevOrNext);
+        if(prevOrNext != nullptr) {
+            if (next) {
+                Leaf* prev = prevOrNext->getPrevious();
+                leaf->setPrevious(prev);
+                if (prev != nullptr) prev->setNext(leaf);
+                leaf->setNext(prevOrNext);
+                prevOrNext->setPrevious(leaf);
+            } else {
+                Leaf* next = prevOrNext->getNext();
+                if (next != nullptr) next->setPrevious(leaf);
+                leaf->setNext(next);
+                prevOrNext->setNext(leaf);
+                leaf->setPrevious(prevOrNext);
+            }
         }
     }
 

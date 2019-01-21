@@ -149,6 +149,10 @@ void clearTree(Trie<string> * tree) {
 }
 
 void lowerAndUpperBound(Trie<string> *tree) {
+    if(tree->empty()) {
+        cout << "Tree ist leer" << endl;
+        return;
+    }
     string bound = "";
     cout << "Suchwort eingeben:" << endl;
     cin >> bound;
