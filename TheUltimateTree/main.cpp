@@ -2,6 +2,7 @@
 #include "Trie.h"
 #include <string>
 #include <vector>
+#include <queue>
 
 void addWord(Trie<string> * tree);
 
@@ -193,12 +194,18 @@ void DucÜbung() {
 
     duc2.push_back(2);
     duc2.push_back(34);
+    duc2.insert(duc2.begin(), 0);
     for(int i : duc2) {
         cout << i << endl;
     }
 
     cout << duc2.front() << endl;
 
+    // TODO: Queue Übung
+
+    queue<int> duc3;
+    duc3.push(2);
+    cout << duc3.back() << endl;
 }
 
 
