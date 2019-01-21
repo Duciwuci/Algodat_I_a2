@@ -13,10 +13,6 @@
 #include <map>
 
 using namespace std;
-class TrieIterator;
-class AbstractNode;
-class InnerNode;
-class Leaf;
 template <class T, class E=char>
 class Trie {
 public:
@@ -27,7 +23,8 @@ public:
 
 
     /* Typedefs */
-    typedef basic_string<E> key_type; // string=basic_string<char>
+    // string=basic_string<char>
+    typedef basic_string<E> key_type;
     typedef pair<basic_string<E>, T> value_type;
     typedef T mapped_type;
 
@@ -63,19 +60,18 @@ public:
     };
 
     /* Innere Knoten */
-
     class Leaf;
     class InnerNode: public AbstractNode {
     public:
         /* Konstruktor */
         InnerNode(char input): AbstractNode(input) {};
 
+        // Destruktor
         ~InnerNode();
 
     };
 
     /* Blatt zum abspeichern der Values */
-    // TODO: implement all methods
     class Leaf: public AbstractNode {
     private:
         T value;
@@ -440,9 +436,12 @@ private:
         }
     }
 
+    // Find next Branch, where we can iterate down.
     pair<char, AbstractNode *> GetNextBranch() {
         AbstractNode * tmp = stackToTrack.top().first;
         char c = tmp->getLetter();
+
+        // Pop above the track, while its a solo Node
         while(tmp->getSons().size() == 1) {
             c = tmp->getLetter();
             stackToTrack.pop();
@@ -465,6 +464,7 @@ private:
         return make_pair(c, tmp);
     }
 
+    // searching a Leaf, return true with Leaf, if Previous.s
     pair<bool, Leaf *> GetNextOrPreviousLeaf(AbstractNode * branchNode, char c) {
         auto sons = branchNode->getSons();
         auto mapIterator = sons.find(c);

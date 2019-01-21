@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Trie.h"
 #include <string>
+#include <vector>
 
 void addWord(Trie<string> * tree);
 
@@ -17,6 +18,8 @@ void clearTree(Trie<string> * tree);
 void lowerAndUpperBound(Trie<string> * tree);
 
 void listMenu();
+
+void DucÜbung();
 
 using namespace std;
 int main() {
@@ -75,6 +78,8 @@ int main() {
             case 7: lowerAndUpperBound(&tree);
                 break;
             case 8: break;
+            case 9: DucÜbung();
+                break;
             default: cout << answer << " ist kein Menüpunkt!" << endl;
         }
     }
@@ -162,4 +167,38 @@ void listMenu() {
     cout << " 6: Ausgabe aller English Wörtern" << endl;
     cout << " 7: Suche von Lower- und Upper-Bound" << endl;
     cout << " 8: Beenden" << endl;
+    cout << " 9: Duc Übung" << endl;
 }
+
+void DucÜbung() {
+
+    // TODO: Hr Fischer fragen: Liste initialisiert hier eine 2 am Ende? Wieso? Vielleicht weil index.
+    list<int> duc;
+    duc.insert(duc.begin(), 3);
+    duc.insert(duc.begin(), 4);
+    for(int i : duc) {
+        cout << i << endl;
+    }
+    cout << *++++duc.begin() << endl;
+    auto it =duc.begin();
+    ++it;
+    ++it;
+    if(it == duc.end()) {
+        cout << "true" << endl;
+    }
+    cout << *it << endl;
+
+    // TODO: Vector Übung
+    vector<int> duc2 (0, 2);
+
+    duc2.push_back(2);
+    duc2.push_back(34);
+    for(int i : duc2) {
+        cout << i << endl;
+    }
+
+    cout << duc2.front() << endl;
+
+}
+
+
