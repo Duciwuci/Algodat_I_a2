@@ -175,8 +175,38 @@ void listMenu() {
     cout << " 9: Duc Übung" << endl;
 }
 
-list<int> * bubblesort(list<int> * toSort);
+int split(int input[], unsigned int start, unsigned int position, unsigned int stop) {
+    int pivot = input[position];
+
+    // Move Pivot to the bottom
+    swap(input[start], input[position]);
+    unsigned int low = start + 1;
+    unsigned int high = stop;
+    while(low < high) {
+        if(input[low] < input[high]) {
+            ++low;
+        } else if (input[--high] < input[start]) {
+            swap(input[low], input[high]);
+        }
+    }
+    swap(input[start], input[--low]);
+    return low;
+};
+
+void quicksort(int input[], unsigned int low, unsigned int high) {
+    if(low >= high-1) return;
+    unsigned int pivotIndex = split(input, low, (low+high)/2, high);
+    if (low < pivotIndex) quicksort(input, low, pivotIndex);
+    if (pivotIndex < high) quicksort(input, pivotIndex+1, high);
+}
+
 void DucÜbung() {
+
+    int input[10] = { -5, 3, 56, 234, 4, 1, 0, -213, 78, 45 };
+    quicksort(input, 0, 9);
+    for(int n : input) {
+        cout << n << endl;
+    }
 
     // TODO: Hr Fischer fragen: Liste initialisiert hier eine 2 am Ende? Wieso? Vielleicht weil index.
     /*list<int> duc;
@@ -227,7 +257,7 @@ void DucÜbung() {
 
 
     // map has to be sorted by keys!!!!
-    map<char, int> mymap;
+   /* map<char, int> mymap;
     auto it = mymap.begin();
     mymap.insert(it, pair<char, int>('c', 20));
     mymap.insert(it, pair<char, int>('f', 20));
@@ -240,7 +270,7 @@ void DucÜbung() {
 
     for(pair<char, int> i : mymap) {
         cout << i.first << endl;
-    }
+    }*/
 
    /* cout << *++++duc.begin() << endl;
     auto it =duc.begin();
