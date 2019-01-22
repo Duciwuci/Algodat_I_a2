@@ -179,7 +179,7 @@ list<int> * bubblesort(list<int> * toSort);
 void DucÜbung() {
 
     // TODO: Hr Fischer fragen: Liste initialisiert hier eine 2 am Ende? Wieso? Vielleicht weil index.
-    list<int> duc;
+    /*list<int> duc;
 
     duc.insert(duc.begin(), 3);
     duc.insert(duc.begin(), 78);
@@ -206,11 +206,43 @@ void DucÜbung() {
         }
     }
 
+
+    // Insertion sort
+    for(auto top = ++(duc.begin()); top != duc.end(); ++top) {
+        auto i = duc.begin();
+        auto iPlus = duc.begin();
+        for(i; i != top; ++i);
+        for(iPlus; iPlus != top; ++iPlus);
+        --i;
+        while (iPlus != duc.begin()) {
+            if(*i < *iPlus) swap(*i, *iPlus);
+            --i;
+            --iPlus;
+        }
+    }
+
     for(int i : duc) {
         cout << i << endl;
+    }*/
+
+
+    // map has to be sorted by keys!!!!
+    map<char, int> mymap;
+    auto it = mymap.begin();
+    mymap.insert(it, pair<char, int>('c', 20));
+    mymap.insert(it, pair<char, int>('f', 20));
+    mymap.insert(it, pair<char, int>('z', 20));
+    mymap.insert(it, pair<char, int>('a', 20));
+    mymap.insert(it, pair<char, int>('e', 20));
+    mymap.insert(it, pair<char, int>('g', 20));
+    mymap.insert(it, pair<char, int>('m', 20));
+    mymap.insert(it, pair<char, int>('p', 20));
+
+    for(pair<char, int> i : mymap) {
+        cout << i.first << endl;
     }
-/*
-    cout << *++++duc.begin() << endl;
+
+   /* cout << *++++duc.begin() << endl;
     auto it =duc.begin();
     ++it;
     ++it;
