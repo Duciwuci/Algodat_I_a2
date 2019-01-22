@@ -175,15 +175,41 @@ void listMenu() {
     cout << " 9: Duc Übung" << endl;
 }
 
+list<int> * bubblesort(list<int> * toSort);
 void DucÜbung() {
 
     // TODO: Hr Fischer fragen: Liste initialisiert hier eine 2 am Ende? Wieso? Vielleicht weil index.
     list<int> duc;
+
     duc.insert(duc.begin(), 3);
+    duc.insert(duc.begin(), 78);
     duc.insert(duc.begin(), 4);
+    duc.insert(duc.begin(), 42);
+    duc.insert(duc.begin(), -5);
+    duc.insert(duc.begin(), 124);
+    duc.insert(duc.begin(), 1);
+    duc.insert(duc.begin(), 100);
+
+    // bubblesort
+    for(auto top = duc.end(); top != duc.begin(); --top) {
+        for (auto i = duc.begin(); i != top; ++i) {
+
+            // get iterator, which ist greater
+            auto compare = duc.begin();
+            for (compare; compare != i; ++compare);
+            compare++;
+
+            // swap if encessary
+            if(*i > *compare && compare != duc.end()) {
+                swap(*i, *compare);
+            }
+        }
+    }
+
     for(int i : duc) {
         cout << i << endl;
     }
+/*
     cout << *++++duc.begin() << endl;
     auto it =duc.begin();
     ++it;
@@ -209,7 +235,7 @@ void DucÜbung() {
 
     queue<int> duc3;
     duc3.push(2);
-    cout << duc3.back() << endl;
+    cout << duc3.back() << endl; */
 }
 
 

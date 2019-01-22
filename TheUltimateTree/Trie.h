@@ -276,14 +276,20 @@ public:
 
     /* Iteratorabhängige Methoden */
     iterator lower_bound(const key_type& testElement) {
+        // Wenn er das Element findet, gib es zurück.
         auto it = find(testElement);
         if (it != end()) {
             return it;
         }
+
+        // Beginne nächst größere Suche am Root mit dem String
         int num;
         auto sons = root->getSons();
         for (int i = 0; i < testElement.length(); i++) {
             auto tmpIt = sons.find(i);
+
+            // falls der Buchstabe im Suchwort nicht gefunden wird
+            // brich ab.
             if (tmpIt == sons.end()) {
                 num = i;
                 break;
@@ -291,6 +297,7 @@ public:
             sons = tmpIt->second->getSons();
         }
 
+        // bilde substring des Wortes und finde nächsten Bound
         return findBound(testElement.substr(num, testElement.length()), root);
     }
 
@@ -380,7 +387,7 @@ private:
         auto it = sons.find(key[0]);
 
         // solange der Iterator nichts findet,
-        // TODO: Raphi, was passiert hier?
+        // suche nächst größere Node (value).
         if (it == sons.end()) {
             for (auto i = sons.begin(); i != sons.end(); ++i) {
                 if (i->first > it->first) {
